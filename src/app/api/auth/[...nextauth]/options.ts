@@ -1,5 +1,28 @@
 import CredentialsProvider from "next-auth/providers/credentials"
-import type { NextAuthOptions } from "next-auth"
+import type { NextAuthOptions, User } from "next-auth"
+
+// Extend the User type to include the role property
+declare module "next-auth" {
+  interface User {
+    role?: string
+  }
+
+  interface Session {
+    user: {
+      id: string
+      email: string
+      name: string
+      role?: string
+    }
+  }
+
+  interface JWT {
+    id: string
+    email: string
+    name: string
+    role?: string
+  }
+}
 
 // Simple hardcoded admin user for demo purposes
 const ADMIN_EMAIL = "admin@donatti.com"
@@ -62,4 +85,3 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
-
