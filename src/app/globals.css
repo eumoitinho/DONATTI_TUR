@@ -1,0 +1,47 @@
+@tailwind base; /* Importa estilos base do Tailwind CSS */
+@tailwind components; /* Importa estilos de componentes do Tailwind CSS */
+@tailwind utilities; /* Importa utilitários do Tailwind CSS */
+
+/* Definindo fontes personalizadas usando @font-face */
+@layer base {
+  @font-face {
+    font-family: "BLOVERLY";
+    src: url("../../public/fonts/BLOVERLY.ttf");
+  }
+
+  @font-face {
+    font-family: "BetterSignatureFont";
+    src: url("../../public/fonts/BetterSignatureFont.ttf");
+  }
+
+  @font-face {
+    font-family: "Montserrat";
+    src: url("../../public/fonts/Montserrat.ttf");
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 18px;
+    }
+  }
+}
+
+/* Desabilitar o estilo padrão do navegador para o input do tipo date */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Ajustes de layout global */
+.max-container {
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+body {
+  zoom: 1.02;
+}
+
