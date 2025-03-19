@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "../../auth/[...nextauth]/route"
+import { authOptions } from "../../auth/[...nextauth]/options"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redis, REDIS_KEYS } from "@/lib/redis"
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       end.setDate(end.getDate() + 1) // Include the end date
 
       filteredPromos = promos.filter((promo) => {
-        const createdAt = new Date(promo.createdAt)
+        const createdAt = new Date(promo.createdAt as string)
         return createdAt >= start && createdAt < end
       })
     }

@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 // Metadados da página para SEO
 export const metadata: Metadata = {
-  title: "Lemonde Tourisme", // Título da página
+  title: "Donatti Turismo", // Título da página
   description: "Pacotes de viagens com preços excelentes.", // Descrição para SEO
 }
 
