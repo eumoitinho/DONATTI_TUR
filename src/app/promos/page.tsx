@@ -5,8 +5,8 @@ import { authOptions } from "../api/auth/[...nextauth]/options"
 import PromosDashboard from "@/components/promos/PromosDashboard"
 
 export const metadata: Metadata = {
-  title: "Gerenciador de Promoções | Lemonde Tourisme",
-  description: "Gerencie as promoções de viagens e pacotes turísticos da Lemonde Tourisme.",
+  title: "Gerenciador de Promoções | Donatti Turismo",
+  description: "Gerencie as promoções de viagens e pacotes turísticos da Donatti Turismo.",
 }
 
 export default async function PromosPage() {
