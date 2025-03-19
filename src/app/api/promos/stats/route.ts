@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
     const averageNights = totalPromos > 0 ? totalNights / totalPromos : 0
 
     // Most popular destination
-    const destinationCounts = promos.reduce(
-      (counts: Record<string, number>, promo) => {
+    const destinationCounts: Record<string, number> = promos.reduce(
+      (counts, promo) => {
         const dest = promo.DESTINO
         counts[dest] = (counts[dest] || 0) + 1
         return counts
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     let mostPopularDestination = { name: "Nenhum", count: 0 }
     for (const [dest, count] of Object.entries(destinationCounts)) {
       if (count > mostPopularDestination.count) {
-        mostPopularDestination = { name: dest, count }
+        mostPopularDestination = { name: dest, count: count as number }
       }
     }
 
