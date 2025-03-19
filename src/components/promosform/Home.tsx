@@ -6,7 +6,7 @@ import PromosListNew from "./PromosListNew"
 import type { PlanilhaData } from "../../app/api/promosenviadas/route"
 import getPromos from "../../../lib/getPromos"
 import { PromosHeader } from "./PromosHeader"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Loader2 } from "lucide-react"
 import PromoStats from "./PromoStats"
 
