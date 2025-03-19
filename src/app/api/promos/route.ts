@@ -23,6 +23,8 @@ const promoSchema = z.object({
   AEREO: z.boolean().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
+  createdBy: z.string().optional(),
+  createdByName: z.string().optional(),
 })
 
 export async function GET(req: NextRequest) {
@@ -38,6 +40,7 @@ export async function GET(req: NextRequest) {
     const id = url.searchParams.get("id")
     const startDate = url.searchParams.get("startDate")
     const endDate = url.searchParams.get("endDate")
+    const userId = url.searchParams.get("userId")
 
     // Get promos from Redis
     const promosData = (await redis.get<any[]>(REDIS_KEYS.PROMOS)) || []
@@ -51,16 +54,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(promo)
     }
 
-    // Filter by date range if provided
+    // Apply filters
     let filteredPromos = promosData
+
+    // Filter by date range if provided
     if (startDate && endDate) {
       const start = new Date(startDate).getTime()
       const end = new Date(endDate).getTime()
 
-      filteredPromos = promosData.filter((promo) => {
+      filteredPromos = filteredPromos.filter((promo) => {
         const createdAt = new Date(promo.createdAt as string).getTime()
         return createdAt >= start && createdAt <= end
       })
+    }
+
+    // Filter by user ID if provided and user is admin
+    if (userId && session.user.role === "admin") {
+      filteredPromos = filteredPromos.filter((promo) => promo.createdBy === userId)
+    }
+    // If user is agent, only show their own promos
+    else if (session.user.role === "agent") {
+      filteredPromos = filteredPromos.filter((promo) => promo.createdBy === session.user.id)
     }
 
     // Sort by creation date (newest first)
@@ -99,9 +113,11 @@ export async function POST(req: NextRequest) {
     const promoId = promoData.id || nanoid()
     const now = new Date().toISOString()
 
-    // Set timestamps
+    // Set timestamps and user info
     if (isNewPromo) {
       promoData.createdAt = now
+      promoData.createdBy = session.user.id
+      promoData.createdByName = session.user.name
     }
     promoData.updatedAt = now
     promoData.id = promoId
@@ -115,7 +131,14 @@ export async function POST(req: NextRequest) {
     } else {
       const index = promosData.findIndex((p) => p.id === promoId)
       if (index !== -1) {
-        promosData[index] = promoData
+        // Preserve the original creator when updating
+        const originalCreatedBy = promosData[index].createdBy
+        const originalCreatedByName = promosData[index].createdByName
+        promosData[index] = {
+          ...promoData,
+          createdBy: originalCreatedBy,
+          createdByName: originalCreatedByName,
+        }
       } else {
         promosData.push(promoData)
       }
@@ -151,9 +174,14 @@ export async function DELETE(req: NextRequest) {
     const promosData = (await redis.get<any[]>(REDIS_KEYS.PROMOS)) || []
 
     // Check if promo exists
-    const index = promosData.findIndex((p) => p.id === id)
-    if (index === -1) {
+    const promo = promosData.find((p) => p.id === id)
+    if (!promo) {
       return NextResponse.json({ error: "Promoção não encontrada" }, { status: 404 })
+    }
+
+    // Check if user has permission to delete
+    if (session.user.role !== "admin" && promo.createdBy !== session.user.id) {
+      return NextResponse.json({ error: "Você não tem permissão para excluir esta promoção" }, { status: 403 })
     }
 
     // Delete promo

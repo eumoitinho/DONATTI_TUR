@@ -8,19 +8,24 @@ import { initializeRedis } from "@/lib/redis"
 
 export async function GET() {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions)
-    if (!session) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    // Initialize Redis without requiring authentication first
+    const initialized = await initializeRedis()
+
+    if (!initialized) {
+      return NextResponse.json({ error: "Failed to initialize Redis" }, { status: 500 })
     }
 
-    // Initialize Redis
-    await initializeRedis()
+    // Now check authentication (optional for this route)
+    const session = await getServerSession(authOptions)
 
-    return NextResponse.json({ success: true, message: "Redis initialized successfully" })
+    return NextResponse.json({
+      success: true,
+      message: "Redis initialized successfully",
+      authenticated: !!session,
+    })
   } catch (error) {
     console.error("Error initializing Redis:", error)
-    return NextResponse.json({ error: "Erro ao inicializar Redis" }, { status: 500 })
+    return NextResponse.json({ error: "Error initializing Redis" }, { status: 500 })
   }
 }
 

@@ -1,18 +1,12 @@
+"use client"
 import type React from "react"
-// Importando as dependências necessárias
-import type { Metadata } from "next"
-import Script from "next/script"
 import { Inter } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
+import { SessionProvider } from "next-auth/react"
 
 // Configurando a fonte Inter com suporte ao subset 'latin'
 const inter = Inter({ subsets: ["latin"] })
-
-// Metadados da página para SEO
-export const metadata: Metadata = {
-  title: "Donatti Turismo", // Título da página
-  description: "Pacotes de viagens com preços excelentes.", // Descrição para SEO
-}
 
 // Componente funcional para o layout principal da aplicação
 export default function RootLayout({
@@ -22,11 +16,13 @@ export default function RootLayout({
 }) {
   return (
     // Estrutura básica do HTML
-    <html lang="en">
+    <html lang="pt-BR">
       {/* Corpo da página com classe para estilos específicos */}
       <body className="max-w-[2000px] mx-auto">
-        {/* Renderizando o conteúdo das páginas filhas */}
-        {children}
+        <SessionProvider>
+          {/* Renderizando o conteúdo das páginas filhas */}
+          {children}
+        </SessionProvider>
         {/* Script de integração com o Facebook Pixel com estratégia "afterInteractive" */}
         <Script id="pixel-meta" strategy="afterInteractive">
           {`
@@ -51,7 +47,7 @@ export default function RootLayout({
         </Script>
         <noscript>
           <iframe
-            id="google-tag-manager(noscript)"
+            id="google-tag-manager-noscript"
             src="https://www.googletagmanager.com/ns.html?id=AW-327531753"
             height="0"
             width="0"

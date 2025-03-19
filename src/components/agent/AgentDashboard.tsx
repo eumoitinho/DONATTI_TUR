@@ -1,30 +1,28 @@
 "use client"
 import { useState, useEffect } from "react"
-import { usePromo } from "@/hooks/usePromo"
 import { signOut } from "next-auth/react"
-import { PromosHeader } from "./PromosHeader"
-import { PromosList } from "./PromosList"
-import { PromoForm } from "./PromoForm"
-import { PromoStats } from "./PromoStats"
-import { DateRangePicker } from "./DateRangePicker"
-import { CSVExport } from "./CSVExport"
+import { AgentHeader } from "./AgentHeader"
+import { PromosList } from "../promos/PromosList"
+import { PromoForm } from "../promos/PromoForm"
+import { PromoStats } from "../promos/PromoStats"
+import { DateRangePicker } from "../promos/DateRangePicker"
+import { CSVExport } from "../promos/CSVExport"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Plus, FileText, BarChart2, Database, Image } from "lucide-react"
-import { DataMigration } from "./DataMigration"
-import { PromoImageBulkGenerator } from "./PromoImageBulkGenerator"
+import { Loader2, Plus, FileText, BarChart2, Image } from "lucide-react"
+import { PromoImageBulkGenerator } from "../promos/PromoImageBulkGenerator"
 
 interface User {
+  id: string
   name?: string | null
   email?: string | null
-  image?: string | null
   role?: string | null
 }
 
-interface PromosDashboardProps {
+interface AgentDashboardProps {
   user: User
 }
 
-export default function PromosDashboard({ user }: PromosDashboardProps) {
+export default function AgentDashboard({ user }: AgentDashboardProps) {
   const [activeTab, setActiveTab] = useState("promos")
   const [selectedPromo, setSelectedPromo] = useState<any>(null)
   const [dateRange, setDateRange] = useState<{
@@ -34,13 +32,51 @@ export default function PromosDashboard({ user }: PromosDashboardProps) {
     from: undefined,
     to: undefined,
   })
+  const [promos, setPromos] = useState<any[]>([])
+  const [stats, setStats] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const { promos, isLoading, error, fetchPromos, stats, fetchStats } = usePromo()
-
+  // Fetch initial data
   useEffect(() => {
     fetchPromos()
     fetchStats()
-  }, [fetchPromos, fetchStats])
+  }, [])
+
+  const fetchPromos = async () => {
+    setIsLoading(true)
+    try {
+      let url = "/api/promos"
+
+      // Add date range filter if provided
+      if (dateRange.from && dateRange.to) {
+        const startDateStr = dateRange.from.toISOString().split("T")[0]
+        const endDateStr = dateRange.to.toISOString().split("T")[0]
+        url += `?startDate=${startDateStr}&endDate=${endDateStr}`
+      }
+
+      const response = await fetch(url)
+      if (!response.ok) throw new Error("Failed to fetch promos")
+      const data = await response.json()
+      setPromos(data)
+    } catch (err) {
+      console.error("Error fetching promos:", err)
+      setError("Erro ao buscar promoções")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/promos/stats")
+      if (!response.ok) throw new Error("Failed to fetch stats")
+      const data = await response.json()
+      setStats(data)
+    } catch (err) {
+      console.error("Error fetching stats:", err)
+    }
+  }
 
   const handleEditPromo = (promo: any) => {
     setSelectedPromo(promo)
@@ -64,7 +100,9 @@ export default function PromosDashboard({ user }: PromosDashboardProps) {
 
     // If both dates are selected, filter promos
     if (range.from && range.to) {
-      fetchPromos(range.from, range.to)
+      const startDateStr = range.from.toISOString().split("T")[0]
+      const endDateStr = range.to.toISOString().split("T")[0]
+      fetchPromos()
     } else {
       fetchPromos()
     }
@@ -76,12 +114,12 @@ export default function PromosDashboard({ user }: PromosDashboardProps) {
   }
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/admin/login" })
+    await signOut({ callbackUrl: "/login" })
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <PromosHeader user={user} onSignOut={handleSignOut} />
+      <AgentHeader user={user} onSignOut={handleSignOut} />
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -145,14 +183,6 @@ export default function PromosDashboard({ user }: PromosDashboardProps) {
               <span className="hidden sm:inline">Estatísticas</span>
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="data"
-              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
-            >
-              <Database className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Gerenciamento de Dados</span>
-              <span className="sm:hidden">Dados</span>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="promos" className="space-y-4">
@@ -196,12 +226,6 @@ export default function PromosDashboard({ user }: PromosDashboardProps) {
               ) : (
                 <PromoStats stats={stats} detailed />
               )}
-            </div>
-          </TabsContent>
-          <TabsContent value="data">
-            <div className="bg-white rounded-lg shadow-lg p-4 md:p-6">
-              <h2 className="text-xl font-bold text-primary-blue mb-6 font-mon">Gerenciamento de Dados</h2>
-              <DataMigration />
             </div>
           </TabsContent>
         </Tabs>

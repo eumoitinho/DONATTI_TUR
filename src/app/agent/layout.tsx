@@ -4,11 +4,11 @@ import { PromoProvider } from "@/providers/PromoProvider"
 import { AuthProvider } from "@/providers/AuthProvider"
 
 export const metadata: Metadata = {
-  title: "Área Administrativa | Donatti Turismo",
-  description: "Sistema de gerenciamento administrativo da Donatti Turismo",
+  title: "Área do Agente | Donatti Turismo",
+  description: "Sistema de gerenciamento de promoções da Donatti Turismo",
 }
 
-export default function AdminLayout({
+export default function AgentLayout({
   children,
 }: {
   children: React.ReactNode

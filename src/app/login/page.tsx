@@ -4,7 +4,7 @@ import type React from "react"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import Logo from "../../../../public/assets/logo-preto.png"
+import Logo from "../../../public/assets/logo-preto.png"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -17,7 +17,12 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (status === "authenticated" && session) {
-      router.push("/admin")
+      // Redirect based on user role
+      if (session.user.role === "admin") {
+        router.push("/admin")
+      } else {
+        router.push("/agent")
+      }
     }
   }, [session, status, router])
 
@@ -27,10 +32,14 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // Add userAgent to help with session tracking
+      const userAgent = window.navigator.userAgent
+
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
+        userAgent,
       })
 
       if (result?.error) {
@@ -40,11 +49,15 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
-        // Wait a moment for the session to be established
-        setTimeout(() => {
+        // Fetch the session to determine where to redirect
+        const response = await fetch("/api/auth/session")
+        const sessionData = await response.json()
+
+        if (sessionData?.user?.role === "admin") {
           router.push("/admin")
-          router.refresh()
-        }, 500)
+        } else {
+          router.push("/agent")
+        }
       }
     } catch (error) {
       console.error("Login error:", error)
@@ -57,7 +70,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div className="flex flex-col items-center">
-          <Image src={Logo || "/placeholder.svg"} alt="Lemonde Tourisme" width={180} height={72} className="mb-6" />
+          <Image src={Logo || "/placeholder.svg"} alt="Donatti Turismo" width={180} height={72} className="mb-6" />
           <h2 className="text-2xl font-bold text-primary-blue">Acesso ao Gerenciador</h2>
           <p className="mt-2 text-sm text-gray-600">Entre com suas credenciais para acessar o sistema</p>
         </div>
@@ -138,7 +151,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center text-xs text-gray-500">
           <p>Para fins de demonstração, use:</p>
-          <p className="mt-1">Email: admin@lemonde.com</p>
+          <p className="mt-1">Email: admin@donatti.com</p>
           <p>Senha: lemonde123</p>
         </div>
       </div>

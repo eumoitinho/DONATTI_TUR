@@ -1,9 +1,22 @@
 "use client"
 import { useState } from "react"
 import { usePromo } from "@/hooks/usePromo"
-import { Calendar, MapPin, Hotel, DollarSign, Search, Edit, Trash2, ChevronDown, ChevronUp, X } from "lucide-react"
+import {
+  Calendar,
+  MapPin,
+  Hotel,
+  DollarSign,
+  Search,
+  Edit,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Image,
+} from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { PromoImageGeneratorModal } from "./PromoImageGeneratorModal"
 
 interface PromoData {
   id: string
@@ -36,6 +49,7 @@ export function PromosList({ promos, onEdit, onDelete }: PromosListProps) {
   const [sortField, setSortField] = useState<string>("createdAt")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [selectedPromoForImage, setSelectedPromoForImage] = useState<PromoData | null>(null)
 
   const { deletePromo, isLoading } = usePromo()
 
@@ -136,6 +150,10 @@ export function PromosList({ promos, onEdit, onDelete }: PromosListProps) {
 
   const handleCancelDelete = () => {
     setDeleteConfirmId(null)
+  }
+
+  const handleGenerateImage = (promo: PromoData) => {
+    setSelectedPromoForImage(promo)
   }
 
   const renderSortIcon = (field: string) => {
@@ -332,6 +350,13 @@ export function PromosList({ promos, onEdit, onDelete }: PromosListProps) {
                     ) : (
                       <div className="flex items-center space-x-2">
                         <button
+                          onClick={() => handleGenerateImage(promo)}
+                          className="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50"
+                          title="Gerar imagem promocional"
+                        >
+                          <Image className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => onEdit(promo)}
                           className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50"
                         >
@@ -352,6 +377,15 @@ export function PromosList({ promos, onEdit, onDelete }: PromosListProps) {
           </table>
         )}
       </div>
+
+      {/* Image Generator Modal */}
+      {selectedPromoForImage && (
+        <PromoImageGeneratorModal
+          isOpen={!!selectedPromoForImage}
+          onClose={() => setSelectedPromoForImage(null)}
+          promo={selectedPromoForImage}
+        />
+      )}
     </div>
   )
 }
