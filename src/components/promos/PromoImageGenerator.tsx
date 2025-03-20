@@ -181,7 +181,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               <div className="absolute top-[625px] left-[600px] text-[#002043] font-bold text-[100px]">
                 {baseValue}
               </div>
-              <div className="absolute top-[630px] left-[420px] text-[#002043] font-medium text-[30px]">
+              <div className="absolute top-[760px] left-[420px] text-[#002043] font-medium text-[30px]">
                 no cartão e {parcelas - 1}x no boleto sem juros.
               </div>
 
@@ -211,10 +211,10 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               </div>
 
               {/* Contact */}
-              <div className="absolute top-[1250px] left-[580px] text-[#002043] font-bold text-[40px]">
+              <div className="absolute top-[1250px] left-[580px] text-[#002043] font-bold text-[30px]">
                 Contato e Whatsapp
               </div>
-              <div className="absolute top-[1285px] left-[580px] text-[#002043] font-bold text-[40px]">
+              <div className="absolute top-[1285px] left-[580px] text-[#002043] font-bold text-[30px]">
                 (67) 9 9637-2769
               </div>
             </div>
