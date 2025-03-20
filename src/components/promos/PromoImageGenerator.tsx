@@ -1,7 +1,7 @@
 "use client"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { toPng } from "html-to-image"
-import { Loader2, Download, ImageIcon, RefreshCw } from "lucide-react"
+import { Loader2, Download } from "lucide-react"
 
 interface PromoImageGeneratorProps {
   promo: any
@@ -96,49 +96,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
-  // Fetch destination image using Pexels API
-  const fetchDestinationImage = async () => {
-    setIsLoadingImage(true)
-    setError(null)
-
-    try {
-      const response = await fetch(
-        `https://api.pexels.com/v1/search?query=${encodeURIComponent(
-          promo.DESTINO + " travel",
-        )}&orientation=portrait&per_page=1`,
-        {
-          headers: {
-            Authorization: "563492ad6f91700001000001f89d893e82f44b0ba4f2c5eb6a44a8f1", // Public Pexels API key
-          },
-        },
-      )
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch image")
-      }
-
-      const data = await response.json()
-
-      if (data.photos && data.photos.length > 0) {
-        setDestinationImage(data.photos[0].src.large2x)
-      } else {
-        // Fallback to a default image if no results
-        setDestinationImage(
-          `https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO + " travel")}`,
-        )
-      }
-    } catch (error) {
-      console.error("Error fetching destination image:", error)
-      setError("Erro ao buscar imagem do destino. Tente novamente.")
-      // Fallback to a default image
-      setDestinationImage(
-        `https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO + " travel")}`,
-      )
-    } finally {
-      setIsLoadingImage(false)
-    }
-  }
-
   // Generate and download image
   const generateImage = async () => {
     if (!templateRef.current) return
@@ -149,7 +106,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
       const dataUrl = await toPng(templateRef.current, {
         quality: 0.95,
         width: 1080,
-        height: 1660,
+        height: 1920,
         pixelRatio: 2,
       })
 
@@ -166,26 +123,12 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
-  // Fetch image on component mount
-  useEffect(() => {
-    fetchDestinationImage()
-  }, [promo.DESTINO])
-
   return (
     <div className="flex flex-col items-center">
       <div className="mb-4 flex gap-4">
         <button
-          onClick={fetchDestinationImage}
-          disabled={isLoadingImage}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-        >
-          {isLoadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          Trocar imagem
-        </button>
-
-        <button
           onClick={generateImage}
-          disabled={isGenerating || isLoadingImage || !destinationImage}
+          disabled={isGenerating}
           className="flex items-center gap-2 px-4 py-2 bg-primary-blue text-white rounded-md hover:bg-second-blue transition-colors disabled:opacity-50"
         >
           {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
@@ -195,121 +138,79 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
 
       {error && <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm w-full">{error}</div>}
 
-      <div className="relative w-[540px] h-[830px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
-        {isLoadingImage ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <div className="flex flex-col items-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary-blue mb-2" />
-              <p className="text-gray-600 font-mon">Carregando imagem...</p>
-            </div>
-          </div>
-        ) : !destinationImage ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <div className="flex flex-col items-center">
-              <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
-              <p className="text-gray-600 font-mon">Imagem não disponível</p>
-            </div>
-          </div>
-        ) : null}
-
+      <div className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
         {/* Template for the promotional image */}
         <div
           ref={templateRef}
-          className="w-[540px] h-[830px] relative"
+          className="w-[540px] h-[960px] relative"
           style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
         >
-          <div className="absolute inset-0 w-[1080px] h-[1660px] font-neo">
-            {/* Background image with overlay */}
-            {destinationImage && (
-              <div className="absolute inset-0 z-0">
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${destinationImage})`, opacity: 0.3 }}
-                />
-              </div>
-            )}
-
-            {/* SVG Layout as background */}
-            <div className="absolute inset-0 z-10">
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/promos-layout-hm5gsr2rMI0G06ghR5P5bzXwpsGIYa.svg"
-                alt="Layout"
-                className="w-full h-full"
-              />
-            </div>
+          <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
+            {/* Background template image */}
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Untitled-4hSeVbtcrqJCRT50o2nnmDod7tuYeS.png"
+              alt="Promo Template"
+              className="w-full h-full object-cover"
+            />
 
             {/* Text Overlay */}
-            <div className="absolute inset-0 z-20">
+            <div className="absolute inset-0">
               {/* Region Tag */}
-              <div className="absolute top-0 right-0 text-[#002043] font-bold text-[60px] py-6 px-10">
+              <div className="absolute top-[207px] right-[0] text-[#002043] font-bold text-[60px] py-6 px-10">
                 {getRegion(promo.DESTINO)}
               </div>
 
-              {/* Main Content */}
-              <div className="pt-[250px] px-[80px]">
-                {/* Destination */}
-                <h1 className="text-[#f5a406] font-bold text-[120px] leading-tight">{promo.DESTINO}</h1>
-
-                {/* Hotel */}
-                <h2 className="text-white font-medium text-[80px] mb-4">{promo.HOTEL}</h2>
-
-                {/* Date */}
-                <p className="text-[#f5a406] font-medium text-[60px] mb-8">{formatDateRange()}</p>
-
-                {/* Price */}
-                <div className="text-[#002043] p-8 mb-12">
-                  <div className="flex items-center">
-                    <div className="text-[50px] font-bold mr-4">{parcelas}x de</div>
-                    <div className="flex items-baseline">
-                      <div className="text-[50px] font-bold mr-2">R$</div>
-                      <div className="text-[120px] font-bold leading-none">{totalValue},00</div>
-                    </div>
-                  </div>
-                  <div className="text-[40px] font-medium">no cartão e {parcelas - 1}x no boleto sem juros.</div>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-6 mb-12">
-                  <div className="flex items-center text-white text-[50px]">
-                    <div className="text-[#f5a406] mr-6 w-[60px] h-[60px]"></div>
-                    Aéreo Ida e Volta
-                  </div>
-                  <div className="flex items-center text-white text-[50px]">
-                    <div className="text-[#f5a406] mr-6 w-[60px] h-[60px]"></div>
-                    Valor por pessoa
-                  </div>
-                  <div className="flex items-center text-white text-[50px]">
-                    <div className="text-[#f5a406] mr-6 w-[60px] h-[60px]"></div>
-                    {promo.NUMERO_DE_NOITES} Noites
-                  </div>
-                  <div className="flex items-center text-white text-[50px]">
-                    <div className="text-[#f5a406] mr-6 w-[60px] h-[60px]"></div>
-                    {getRegimeAlimentacao()}
-                  </div>
-                </div>
-
-                {/* Departure */}
-                <div className="text-[#002043] p-6 inline-block text-[40px] font-bold">
-                  saindo de
-                  <br />
-                  {getDepartureAirport()}
-                </div>
+              {/* Destination */}
+              <div className="absolute top-[313px] left-[387px] text-[#e2aa2d] font-bold text-[80px]">
+                {promo.DESTINO}
               </div>
 
-              {/* Fine print */}
-              <div className="absolute bottom-[300px] left-0 right-0 text-center text-white text-[30px] px-[80px]">
-                Preço por pessoa em apartamento duplo, sujeito a alteração sem aviso prévio, taxas inclusas.
+              {/* Hotel */}
+              <div className="absolute top-[367px] left-[387px] text-white font-medium text-[60px]">{promo.HOTEL}</div>
+
+              {/* Date */}
+              <div className="absolute top-[410px] left-[387px] text-[#e2aa2d] font-medium text-[40px]">
+                {formatDateRange()}
               </div>
 
-              {/* Contact section */}
-              <div className="absolute bottom-[200px] left-0 right-0">
-                <div className="flex items-center text-[#002043] p-6 max-w-[600px]">
-                  <div className="p-2 rounded-full mr-6 w-[80px] h-[80px]"></div>
-                  <div>
-                    <div className="text-[40px] font-bold">Contato e Whatsapp</div>
-                    <div className="text-[50px] font-bold">(67) 9637-2769</div>
-                  </div>
-                </div>
+              {/* Price */}
+              <div className="absolute top-[486px] left-[401px] text-[#002043] font-bold text-[40px]">
+                {parcelas}x de
+              </div>
+              <div className="absolute top-[486px] left-[520px] text-[#002043] font-bold text-[40px]">R$</div>
+              <div className="absolute top-[470px] left-[580px] text-[#002043] font-bold text-[100px]">
+                {totalValue},00
+              </div>
+              <div className="absolute top-[571px] left-[401px] text-[#002043] font-medium text-[30px]">
+                no cartão e {parcelas - 1}x no boleto sem juros.
+              </div>
+
+              {/* Features */}
+              <div className="absolute top-[650px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+                Aéreo Ida e Volta
+              </div>
+              <div className="absolute top-[689px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+                Valor por pessoa
+              </div>
+              <div className="absolute top-[727px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+                {promo.NUMERO_DE_NOITES} Noites
+              </div>
+              <div className="absolute top-[765px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+                {getRegimeAlimentacao()}
+              </div>
+
+              {/* Departure */}
+              <div className="absolute top-[816px] left-[345px] text-[#002043] font-bold text-[30px]">saindo de</div>
+              <div className="absolute top-[833px] left-[312px] text-[#002043] font-bold text-[30px]">
+                {getDepartureAirport()}
+              </div>
+
+              {/* Contact */}
+              <div className="absolute top-[961px] left-[433px] text-[#002043] font-bold text-[40px]">
+                Contato e Whatsapp
+              </div>
+              <div className="absolute top-[992px] left-[445px] text-[#002043] font-bold text-[40px]">
+                (67) 9 9637-2769
               </div>
             </div>
           </div>
