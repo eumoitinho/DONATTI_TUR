@@ -181,7 +181,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               <div className="absolute top-[625px] left-[600px] text-[#002043] font-bold text-[100px]">
                 {baseValue}
               </div>
-              <div className="absolute top-[760px] left-[600px] text-[#002043] font-medium text-[30px]">
+              <div className="absolute top-[760px] left-[540px] text-[#002043] font-medium text-[30px]">
                 no cartão e {parcelas - 1}x no boleto sem juros.
               </div>
 
