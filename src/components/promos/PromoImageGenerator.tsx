@@ -148,7 +148,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
             {/* Background template image */}
             <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Untitled-4hSeVbtcrqJCRT50o2nnmDod7tuYeS.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Untitled-Nm0qGvGrga4tctVRGZwoeL4lKl0DU2.png"
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
@@ -156,60 +156,65 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             {/* Text Overlay */}
             <div className="absolute inset-0">
               {/* Region Tag */}
-              <div className="absolute top-[207px] right-[0] text-[#002043] font-bold text-[60px] py-6 px-10">
+              <div className="absolute top-[230px] right-[100px] text-[#002043] font-bold text-[60px]">
                 {getRegion(promo.DESTINO)}
               </div>
 
               {/* Destination */}
-              <div className="absolute top-[313px] left-[387px] text-[#e2aa2d] font-bold text-[80px]">
+              <div className="absolute top-[320px] left-[400px] text-[#e2aa2d] font-bold text-[80px]">
                 {promo.DESTINO}
               </div>
 
               {/* Hotel */}
-              <div className="absolute top-[367px] left-[387px] text-white font-medium text-[60px]">{promo.HOTEL}</div>
+              <div className="absolute top-[400px] left-[400px] text-white font-medium text-[60px]">{promo.HOTEL}</div>
 
               {/* Date */}
-              <div className="absolute top-[410px] left-[387px] text-[#e2aa2d] font-medium text-[40px]">
+              <div className="absolute top-[470px] left-[400px] text-[#e2aa2d] font-medium text-[40px]">
                 {formatDateRange()}
               </div>
 
               {/* Price */}
-              <div className="absolute top-[486px] left-[401px] text-[#002043] font-bold text-[40px]">
+              <div className="absolute top-[540px] left-[420px] text-[#002043] font-bold text-[40px]">
                 {parcelas}x de
               </div>
-              <div className="absolute top-[486px] left-[520px] text-[#002043] font-bold text-[40px]">R$</div>
-              <div className="absolute top-[470px] left-[580px] text-[#002043] font-bold text-[100px]">
+              <div className="absolute top-[540px] left-[540px] text-[#002043] font-bold text-[40px]">R$</div>
+              <div className="absolute top-[520px] left-[600px] text-[#002043] font-bold text-[100px]">
                 {totalValue},00
               </div>
-              <div className="absolute top-[571px] left-[401px] text-[#002043] font-medium text-[30px]">
+              <div className="absolute top-[630px] left-[420px] text-[#002043] font-medium text-[30px]">
                 no cartão e {parcelas - 1}x no boleto sem juros.
               </div>
 
-              {/* Features */}
-              <div className="absolute top-[650px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+              {/* Features - positioned to the right of the icons */}
+              <div className="absolute top-[700px] left-[450px] text-[#e2aa2d] font-medium text-[40px]">
                 Aéreo Ida e Volta
               </div>
-              <div className="absolute top-[689px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+              <div className="absolute top-[750px] left-[450px] text-[#e2aa2d] font-medium text-[40px]">
                 Valor por pessoa
               </div>
-              <div className="absolute top-[727px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+              <div className="absolute top-[800px] left-[450px] text-[#e2aa2d] font-medium text-[40px]">
                 {promo.NUMERO_DE_NOITES} Noites
               </div>
-              <div className="absolute top-[765px] left-[407px] text-[#e2aa2d] font-medium text-[40px]">
+              <div className="absolute top-[850px] left-[450px] text-[#e2aa2d] font-medium text-[40px]">
                 {getRegimeAlimentacao()}
               </div>
 
               {/* Departure */}
-              <div className="absolute top-[816px] left-[345px] text-[#002043] font-bold text-[30px]">saindo de</div>
-              <div className="absolute top-[833px] left-[312px] text-[#002043] font-bold text-[30px]">
+              <div className="absolute top-[920px] left-[350px] text-[#002043] font-bold text-[30px]">saindo de</div>
+              <div className="absolute top-[950px] left-[320px] text-[#002043] font-bold text-[30px]">
                 {getDepartureAirport()}
               </div>
 
+              {/* Fine print */}
+              <div className="absolute top-[1050px] left-[350px] text-center text-white text-[20px] max-w-[700px]">
+                Preço por pessoa em apartamento duplo, sujeito a alteração sem aviso prévio, taxas inclusas.
+              </div>
+
               {/* Contact */}
-              <div className="absolute top-[961px] left-[433px] text-[#002043] font-bold text-[40px]">
+              <div className="absolute top-[1150px] left-[450px] text-[#002043] font-bold text-[40px]">
                 Contato e Whatsapp
               </div>
-              <div className="absolute top-[992px] left-[445px] text-[#002043] font-bold text-[40px]">
+              <div className="absolute top-[1200px] left-[450px] text-[#002043] font-bold text-[40px]">
                 (67) 9 9637-2769
               </div>
             </div>
