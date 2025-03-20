@@ -178,7 +178,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             <div>Aéreo Ida e Volta</div>
             <div>Valor por pessoa</div>
             <div>{promo.NUMERO_DE_NOITES} Noites</div>
-            <div>{getRegimeAlimentacao()}</div>
+            <div>🍽 {getRegimeAlimentacao()}</div>
           </div>
           
           <div className="absolute top-96 left-10 text-blue-900 font-bold text-lg">
