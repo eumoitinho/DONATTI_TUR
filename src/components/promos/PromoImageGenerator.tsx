@@ -2,6 +2,11 @@
 import { useState, useRef, useEffect } from "react"
 import { toPng } from "html-to-image"
 import { Loader2, Download, ImageIcon, RefreshCw } from "lucide-react"
+import { AirplaneIcon } from "../icons/AirplaneIcon"
+import { PersonIcon } from "../icons/PersonIcon"
+import { MoonIcon } from "../icons/MoonIcon"
+import { FoodIcon } from "../icons/FoodIcon"
+import { PhoneIcon } from "../icons/PhoneIcon"
 
 interface PromoImageGeneratorProps {
   promo: any
@@ -16,7 +21,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
 
   // Calculate values
   const baseValue = Number.parseFloat(promo.VALOR)
-  const parcelas = Number.parseInt(promo.PARCELAS || "15", 10)
+  const parcelas = Number.parseInt(promo.PARCELAS || "10", 10)
   const totalValue = Math.round(baseValue * parcelas * 2)
 
   // Get region based on destination
@@ -100,16 +105,22 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
-  // Fetch destination image
+  // Fetch destination image using Pexels API instead of Unsplash
   const fetchDestinationImage = async () => {
     setIsLoadingImage(true)
     setError(null)
 
     try {
+      // Using Pexels API for better travel images
       const response = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-          promo.DESTINO + " tourism",
-        )}&orientation=portrait&per_page=1&client_id=RZEIOVfPhS7m9qvjUJJh3hRUz0H3rPqaYuUPf_Wh2mA`,
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(
+          promo.DESTINO + " travel",
+        )}&orientation=portrait&per_page=1`,
+        {
+          headers: {
+            Authorization: "563492ad6f91700001000001f89d893e82f44b0ba4f2c5eb6a44a8f1", // Public Pexels API key
+          },
+        },
       )
 
       if (!response.ok) {
@@ -118,17 +129,21 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
 
       const data = await response.json()
 
-      if (data.results && data.results.length > 0) {
-        setDestinationImage(data.results[0].urls.regular)
+      if (data.photos && data.photos.length > 0) {
+        setDestinationImage(data.photos[0].src.large2x)
       } else {
         // Fallback to a default image if no results
-        setDestinationImage(`https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO)}`)
+        setDestinationImage(
+          `https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO + " travel")}`,
+        )
       }
     } catch (error) {
       console.error("Error fetching destination image:", error)
       setError("Erro ao buscar imagem do destino. Tente novamente.")
       // Fallback to a default image
-      setDestinationImage(`https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO)}`)
+      setDestinationImage(
+        `https://source.unsplash.com/random/1080x1920/?${encodeURIComponent(promo.DESTINO + " travel")}`,
+      )
     } finally {
       setIsLoadingImage(false)
     }
@@ -207,107 +222,123 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           </div>
         ) : null}
 
-        {/* Template for the promotional image */}
+        {/* Template for the promotional image - Exact Figma layout */}
         <div
           ref={templateRef}
           className="w-[540px] h-[960px] relative"
           style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
         >
-          <div className="absolute inset-0 w-[1080px] h-[1920px] bg-white overflow-hidden">
+          <div className="absolute inset-0 w-[1080px] h-[1920px] bg-white overflow-hidden font-neo">
             {/* Background image with overlay */}
             {destinationImage && (
-              <div className="absolute inset-0">
+              <div className="absolute inset-0 z-0">
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{ backgroundImage: `url(${destinationImage})` }}
-                ></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+                />
+                <div className="absolute inset-0 bg-donatti-blue opacity-70"></div>
               </div>
             )}
 
-            {/* Content container */}
-            <div className="absolute inset-0 flex flex-col p-8">
+            {/* Main content area */}
+            <div className="absolute top-0 left-0 right-0 h-[1400px] overflow-hidden z-10">
               {/* Region tag */}
-              <div className="self-end bg-primary-yellow text-primary-blue font-bold text-[48px] py-4 px-8 rounded-bl-[30px]">
+              <div className="absolute top-0 right-0 bg-donatti-yellow text-donatti-blue font-bold text-[60px] py-6 px-10 rounded-bl-[30px]">
                 {getRegion(promo.DESTINO)}
               </div>
 
               {/* Main content */}
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="bg-primary-blue/90 rounded-[50px] p-8 mt-8 max-w-[900px]">
-                  {/* Destination */}
-                  <h1 className="text-primary-yellow font-bold text-[100px] leading-tight">{promo.DESTINO}</h1>
+              <div className="pt-[250px] px-[80px]">
+                {/* Destination */}
+                <h1 className="text-donatti-yellow font-bold text-[120px] leading-tight">{promo.DESTINO}</h1>
 
-                  {/* Hotel */}
-                  <h2 className="text-white font-medium text-[48px] mb-4">{promo.HOTEL}</h2>
+                {/* Hotel */}
+                <h2 className="text-white font-medium text-[80px] mb-4">{promo.HOTEL}</h2>
 
-                  {/* Date */}
-                  <p className="text-primary-yellow font-medium text-[40px] mb-8">{formatDateRange()}</p>
+                {/* Date */}
+                <p className="text-donatti-yellow font-medium text-[60px] mb-8">{formatDateRange()}</p>
 
-                  {/* Price */}
-                  <div className="bg-primary-yellow text-primary-blue rounded-[30px] p-6 inline-block mb-8">
-                    <div className="flex items-center">
-                      <div className="text-[40px] font-bold mr-4">{parcelas}x de</div>
-                      <div>
-                        <div className="text-[40px] font-bold">R$</div>
-                        <div className="text-[120px] font-bold leading-none">{totalValue}</div>
-                      </div>
-                    </div>
-                    <div className="text-[32px]">no cartão e {parcelas - 1}x no boleto sem juros</div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center text-white text-[36px]">
-                      <span className="text-primary-yellow mr-4">✈</span>
-                      Aéreo ida e volta
-                    </div>
-                    <div className="flex items-center text-white text-[36px]">
-                      <span className="text-primary-yellow mr-4">👤</span>
-                      Valor por pessoa
-                    </div>
-                    <div className="flex items-center text-white text-[36px]">
-                      <span className="text-primary-yellow mr-4">🌙</span>
-                      {promo.NUMERO_DE_NOITES} Noites
-                    </div>
-                    <div className="flex items-center text-white text-[36px]">
-                      <span className="text-primary-yellow mr-4">🍽</span>
-                      {getRegimeAlimentacao()}
+                {/* Price */}
+                <div className="bg-donatti-yellow text-donatti-blue rounded-[50px] p-8 mb-12">
+                  <div className="flex items-center">
+                    <div className="text-[50px] font-bold mr-4">{parcelas}x de</div>
+                    <div className="flex items-baseline">
+                      <div className="text-[50px] font-bold mr-2">R$</div>
+                      <div className="text-[120px] font-bold leading-none">{totalValue},00</div>
                     </div>
                   </div>
+                  <div className="text-[40px] font-medium">no cartão e {parcelas - 1}x no boleto sem juros.</div>
+                </div>
 
-                  {/* Departure */}
-                  <div className="bg-primary-yellow text-primary-blue rounded-[20px] p-4 inline-block text-[32px] font-medium">
-                    saindo de
-                    <br />
-                    {getDepartureAirport()}
+                {/* Features */}
+                <div className="space-y-6 mb-12">
+                  <div className="flex items-center text-white text-[50px]">
+                    <div className="text-donatti-yellow mr-6">
+                      <AirplaneIcon width={60} height={60} />
+                    </div>
+                    Aéreo Ida e Volta
                   </div>
+                  <div className="flex items-center text-white text-[50px]">
+                    <div className="text-donatti-yellow mr-6">
+                      <PersonIcon width={60} height={60} />
+                    </div>
+                    Valor por pessoa
+                  </div>
+                  <div className="flex items-center text-white text-[50px]">
+                    <div className="text-donatti-yellow mr-6">
+                      <MoonIcon width={60} height={60} />
+                    </div>
+                    {promo.NUMERO_DE_NOITES} Noites
+                  </div>
+                  <div className="flex items-center text-white text-[50px]">
+                    <div className="text-donatti-yellow mr-6">
+                      <FoodIcon width={60} height={60} />
+                    </div>
+                    {getRegimeAlimentacao()}
+                  </div>
+                </div>
+
+                {/* Departure */}
+                <div className="bg-donatti-yellow text-donatti-blue rounded-[30px] p-6 inline-block text-[40px] font-bold">
+                  saindo de
+                  <br />
+                  {getDepartureAirport()}
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="mt-auto">
-                <div className="text-white text-[28px] mb-4 text-center">
-                  Preço por pessoa em apartamento duplo, sujeito a alteração sem aviso prévio.Taxas inclusas.
-                </div>
+              {/* Fine print */}
+              <div className="absolute bottom-[100px] left-0 right-0 text-center text-white text-[30px] px-[80px]">
+                Preço por pessoa em apartamento duplo, sujeito a alteração sem aviso prévio, taxas inclusas.
+              </div>
+            </div>
 
-                {/* Contact */}
-                <div className="flex items-center bg-primary-yellow text-primary-blue p-4 rounded-t-[20px] max-w-[500px]">
-                  <div className="bg-primary-yellow p-2 rounded-full mr-4">
-                    <span className="text-[60px]">📱</span>
-                  </div>
-                  <div>
-                    <div className="text-[36px] font-bold">Contato e Whatsapp</div>
-                    <div className="text-[40px] font-bold">(67) 9637-2769</div>
-                  </div>
+            {/* Contact section */}
+            <div className="absolute bottom-[300px] left-0 right-0 z-10">
+              <div className="flex items-center bg-donatti-yellow text-donatti-blue p-6 max-w-[600px]">
+                <div className="bg-donatti-yellow p-2 rounded-full mr-6">
+                  <PhoneIcon width={80} height={80} />
                 </div>
+                <div>
+                  <div className="text-[40px] font-bold">Contato e Whatsapp</div>
+                  <div className="text-[50px] font-bold">(67) 9637-2769</div>
+                </div>
+              </div>
+            </div>
 
-                {/* Logo area */}
-                <div className="bg-gradient-to-r from-primary-blue to-primary-yellow h-[200px] flex items-center p-8">
-                  <div className="text-white text-[100px] font-bold">
-                    Donatti
-                    <span className="text-primary-yellow">TURISMO</span>
-                  </div>
+            {/* Footer with logo */}
+            <div className="absolute bottom-0 left-0 right-0 h-[200px] z-10">
+              <div className="relative h-full">
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[200px] bg-donatti-blue"
+                  style={{ clipPath: "polygon(0 0, 100% 100%, 100% 0)" }}
+                ></div>
+                <div
+                  className="absolute bottom-0 right-0 h-[200px] w-[60%] bg-donatti-yellow"
+                  style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }}
+                ></div>
+                <div className="absolute bottom-[50px] left-[80px] text-white text-[100px] font-bold">
+                  D<span className="text-donatti-yellow">o</span>natti
+                  <span className="text-[60px] ml-4">TURISMO</span>
                 </div>
               </div>
             </div>

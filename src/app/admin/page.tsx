@@ -3,7 +3,6 @@ import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../api/auth/[...nextauth]/options"
 import AdminDashboard from "@/components/admin/AdminDashboard"
-import { User } from "@/types/user"
 
 export const metadata: Metadata = {
   title: "Painel Administrativo | Donatti Turismo",

@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       role: userData.role,
       createdAt: isNewUser ? now : userData.createdAt || now,
       updatedAt: now,
-      active: isNewUser ? true : userData.active ?? true,
+      active: isNewUser ? true : (userData.active ?? true),
     }
 
     // Save to Redis

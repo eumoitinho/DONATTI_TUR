@@ -1,3 +1,31 @@
+/* Add Neo Sans W1G font import */
+@font-face {
+  font-family: "Neo Sans W1G";
+  src: url("../../public/fonts/NeoSansW1G-Regular.otf") format("otf"),
+    url("../../public/fonts/NeoSansW1G-Regular.otf") format("otf");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neo Sans W1G";
+  src: url("../../public/fonts/NeoSansW1G-Medium.otf") format("otf"),
+    url("../../public/fonts/NeoSansW1G-Medium.otf") format("otf");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neo Sans W1G";
+  src: url("../../public/fonts/NeoSansW1G-Bold.otf") format("otf"), url("../../public/fonts/NeoSansW1G-Bold.otf")
+    format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base; /* Importa estilos base do Tailwind CSS */
 @tailwind components; /* Importa estilos de componentes do Tailwind CSS */
 @tailwind utilities; /* Importa utilitários do Tailwind CSS */
