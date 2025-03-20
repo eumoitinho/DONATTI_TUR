@@ -148,7 +148,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
             {/* Background template image */}
             <img
-              src="/images/promos-layout.svg"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Untitled-Nm0qGvGrga4tctVRGZwoeL4lKl0DU2.png"
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
