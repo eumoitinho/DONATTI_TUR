@@ -107,7 +107,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
         quality: 0.95,
         width: 1080,
         height: 1920,
-        pixelRatio: 2,
+        pixelRatio: 1,
       })
 
       // Create download link
