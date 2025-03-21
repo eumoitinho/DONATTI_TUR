@@ -48,7 +48,7 @@
     "cmdk": "1.0.4",
     "date-fns": "latest",
     "embla-carousel-react": "8.5.1",
-    "framer-motion": "latest",
+    "framer-motion": "^12.5.0",
     "google-auth-library": "latest",
     "google-spreadsheet": "latest",
     "html-to-image": "latest",
