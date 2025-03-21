@@ -203,17 +203,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
-              {/* Destination image overlay */}
-              {destinationImage && (
-                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden">
-                  <img
-                    src={destinationImage || "/placeholder.svg"}
-                    alt={promo.DESTINO}
-                    className="w-full h-full object-cover opacity-100"
-                    crossOrigin="anonymous"
-                  />
-                </div>
-              )}
 
             {/* Text Overlay */}
             <div className="absolute inset-0">
@@ -282,6 +271,17 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             </div>
           </div>
         </div>
+                      {/* Destination image overlay */}
+                      {destinationImage && (
+                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden">
+                  <img
+                    src={destinationImage || "/placeholder.svg"}
+                    alt={promo.DESTINO}
+                    className="w-full h-full object-cover opacity-100"
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
       </div>
     </div>
   )
