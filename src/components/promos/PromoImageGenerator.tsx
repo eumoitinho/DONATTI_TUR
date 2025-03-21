@@ -190,11 +190,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
       </div>
       {error && <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm w-full">{error}</div>}
 
-      <div 
-      className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg" style={{
-            transform: "scale(0.5)",
-            transformOrigin: "top left",
-          }}>
+      <div className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
         {/* Template for the promotional image */}
         <div
           ref={templateRef}
