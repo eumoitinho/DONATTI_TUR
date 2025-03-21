@@ -199,8 +199,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             />
               {/* Destination image overlay */}
               {destinationImage && (
-                <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#002043] opacity-80"></div>
+                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden z-0">
                   <img
                     src={destinationImage || "/placeholder.svg"}
                     alt={promo.DESTINO}
