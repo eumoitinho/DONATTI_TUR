@@ -196,7 +196,18 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           className="w-[540px] h-[960px] relative"
           style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
         >
-          <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
+                        {/* Destination image overlay */}
+                        {destinationImage && (
+                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden z-0">
+                  <img
+                    src={destinationImage || "/placeholder.svg"}
+                    alt={promo.DESTINO}
+                    className="w-full h-full object-cover opacity-100"
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
+          <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo z-10">
             {/* Background template image */}
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Untitled-Nm0qGvGrga4tctVRGZwoeL4lKl0DU2.png"
@@ -271,17 +282,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             </div>
           </div>
         </div>
-                      {/* Destination image overlay */}
-                      {destinationImage && (
-                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden">
-                  <img
-                    src={destinationImage || "/placeholder.svg"}
-                    alt={promo.DESTINO}
-                    className="w-full h-full object-cover opacity-100"
-                    crossOrigin="anonymous"
-                  />
-                </div>
-              )}
+        
       </div>
     </div>
   )
