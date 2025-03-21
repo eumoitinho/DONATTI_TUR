@@ -190,18 +190,15 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
       </div>
       {error && <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm w-full">{error}</div>}
 
-      <div className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
+      <div 
+      className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg" style={{
+            transform: "scale(0.5)",
+            transformOrigin: "top left",
+          }}>
         {/* Template for the promotional image */}
         <div
           ref={templateRef}
           className="w-[540px] h-[960px] relative"
-          style={{
-            transform: "scale(0.5)",
-            transformOrigin: "top left",
-            backgroundImage: `url(${destinationImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
         >
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
             {/* Background template image */}
@@ -210,6 +207,17 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
+                          {destinationImage && (
+                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden">
+
+                  <img
+                    src={destinationImage || "/placeholder.svg"}
+                    alt={promo.DESTINO}
+                    className="w-full h-full object-cover opacity-100 -z-0"
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
             {/* Text Overlay */}
             <div className="absolute inset-0">
               {/* Region Tag */}
