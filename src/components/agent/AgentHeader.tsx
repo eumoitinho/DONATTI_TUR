@@ -64,5 +64,9 @@ export function AgentHeader({ user }: AgentHeaderProps) {
           </div>
 
           <button
-            onClick={handleSignOut}\
-
+                    onClick={handleSignOut}>
+                  </button>
+                </div>
+              </div>
+            </header>
+  )}
