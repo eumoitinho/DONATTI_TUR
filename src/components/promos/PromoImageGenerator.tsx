@@ -143,7 +143,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
         quality: 0.95,
         width: 1080,
         height: 1920,
-        pixelRatio: 1,
+        pixelRatio: 0.5,
       })
 
       // Create download link
@@ -197,6 +197,18 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
+              {/* Destination image overlay */}
+              {destinationImage && (
+                <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#002043] opacity-80"></div>
+                  <img
+                    src={destinationImage || "/placeholder.svg"}
+                    alt={promo.DESTINO}
+                    className="w-full h-full object-cover opacity-40"
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
 
             {/* Text Overlay */}
             <div className="absolute inset-0">
