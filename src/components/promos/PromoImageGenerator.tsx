@@ -32,7 +32,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
 
     try {
       // Using Unsplash API to search for destination images
-      const response = await fetch(`/api/image-search?query=${encodeURIComponent(promo.DESTINO + " turismo")}`)
+      const response = await fetch(`/api/image-search?query=${encodeURIComponent(promo.DESTINO)}`)
 
       if (!response.ok) {
         throw new Error("Failed to fetch destination image")
@@ -135,24 +135,24 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
   // Generate and download image
   const generateImage = async () => {
     if (!templateRef.current) return
-  
+
     setIsGenerating(true)
-  
+
     try {
       // Temporariamente remover o scale para capturar a imagem no tamanho correto
       const template = templateRef.current
       const originalTransform = template.style.transform
       template.style.transform = ""
-  
+
       const dataUrl = await toPng(template, {
         quality: 0.95,
         width: 1080,
         height: 1920,
       })
-  
+
       // Restaurar o estilo original
       template.style.transform = originalTransform
-  
+
       // Criar o link de download
       const link = document.createElement("a")
       link.download = `promo-${promo.DESTINO.toLowerCase().replace(/\s+/g, "-")}.png`
@@ -166,7 +166,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
-  
+
   return (
     <div className="flex flex-col items-center">
       <div className="mb-4 flex gap-4">
@@ -195,7 +195,13 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
         <div
           ref={templateRef}
           className="w-[540px] h-[960px] relative"
-          style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
+          style={{
+            transform: "scale(0.5)",
+            transformOrigin: "top left",
+            backgroundImage: `url(${destinationImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         >
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
             {/* Background template image */}
@@ -204,18 +210,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
               alt="Promo Template"
               className="w-full h-full object-cover"
             />
-              {/* Destination image overlay */}
-              {destinationImage && (
-                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden z-0">
-                  <img
-                    src={destinationImage || "/placeholder.svg"}
-                    alt={promo.DESTINO}
-                    className="w-full h-full object-cover opacity-40"
-                    crossOrigin="anonymous"
-                  />
-                </div>
-              )}
-
             {/* Text Overlay */}
             <div className="absolute inset-0">
               {/* Region Tag */}
