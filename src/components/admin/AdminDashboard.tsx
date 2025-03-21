@@ -11,7 +11,7 @@ import { PromoStats } from "../promos/PromoStats"
 import { DateRangePicker } from "../promos/DateRangePicker"
 import { CSVExport } from "../promos/CSVExport"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Plus, FileText, BarChart2, Users, UserPlus, MessageSquare, BriefcaseBusiness } from "lucide-react"
+import { Loader2, Plus, FileText, BarChart2, Users, UserPlus, MessageSquare, Briefcase } from "lucide-react"
 import { EmployeeManagement } from "./EmployeeManagement"
 import { SocialMediaDashboard } from "../social/SocialMediaDashboard"
 
@@ -221,7 +221,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               value="employees"
               className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
             >
-              <BriefcaseBusiness className="h-4 w-4 mr-2" />
+              <Briefcase className="h-4 w-4 mr-2" />
               <span>Funcionários</span>
             </TabsTrigger>
             <TabsTrigger

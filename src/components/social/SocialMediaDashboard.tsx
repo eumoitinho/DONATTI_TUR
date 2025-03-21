@@ -1,656 +1,488 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Instagram, MessageSquare, Send, RefreshCw, Loader2, UserCheck, CheckCircle, Clock, Search } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Send, Instagram, MessageSquare } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import Image from "next/image"
 
 interface Message {
   id: string
+  platform: "instagram" | "whatsapp"
   sender: {
     id: string
-    username?: string
-    name?: string
-    phoneNumber?: string
-    profilePicture?: string
+    name: string
+    avatar?: string
   }
   content: string
   timestamp: string
   read: boolean
   replied: boolean
-  assignedTo?: string
-  replies?: {
+}
+
+interface Conversation {
+  id: string
+  platform: "instagram" | "whatsapp"
+  contact: {
     id: string
+    name: string
+    avatar?: string
+    phone?: string
+    username?: string
+  }
+  lastMessage: {
     content: string
     timestamp: string
-    sentBy: string
-    sentByName: string
-  }[]
+    isFromContact: boolean
+  }
+  unreadCount: number
 }
 
 export function SocialMediaDashboard() {
-  const [activeTab, setActiveTab] = useState("instagram")
-  const [instagramMessages, setInstagramMessages] = useState<Message[]>([])
-  const [whatsappMessages, setWhatsappMessages] = useState<Message[]>([])
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
-  const [replyText, setReplyText] = useState("")
+  const [activeTab, setActiveTab] = useState("whatsapp")
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterUnread, setFilterUnread] = useState(false)
-  const [filterAssigned, setFilterAssigned] = useState(false)
 
+  // Fetch conversations on component mount
   useEffect(() => {
-    fetchInstagramMessages()
-    fetchWhatsappMessages()
-  }, [])
+    fetchConversations(activeTab as "instagram" | "whatsapp")
+  }, [activeTab])
 
-  const fetchInstagramMessages = async () => {
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation)
+    }
+  }, [selectedConversation])
+
+  const fetchConversations = async (platform: "instagram" | "whatsapp") => {
     setIsLoading(true)
     try {
-      let url = "/api/social/instagram"
-      if (filterUnread) url += "?unread=true"
-      if (filterAssigned) url += `${filterUnread ? "&" : "?"}assignedToMe=true`
+      // This would be a real API call in production
+      // const response = await fetch(`/api/social/${platform}/conversations`)
+      // const data = await response.json()
 
-      const response = await fetch(url)
-      if (!response.ok) throw new Error("Failed to fetch Instagram messages")
-      const data = await response.json()
-      setInstagramMessages(data)
-    } catch (err) {
-      console.error("Error fetching Instagram messages:", err)
-      setError("Erro ao buscar mensagens do Instagram")
+      // Mock data for demonstration
+      const mockData: Conversation[] = [
+        {
+          id: "conv1",
+          platform,
+          contact: {
+            id: "user1",
+            name: "Maria Silva",
+            avatar: "",
+            phone: "+5511987654321",
+            username: "mariasilva",
+          },
+          lastMessage: {
+            content: "Olá, gostaria de saber mais sobre o pacote para Cancún",
+            timestamp: new Date().toISOString(),
+            isFromContact: true,
+          },
+          unreadCount: 2,
+        },
+        {
+          id: "conv2",
+          platform,
+          contact: {
+            id: "user2",
+            name: "João Pereira",
+            avatar: "",
+            phone: "+5511912345678",
+            username: "joaopereira",
+          },
+          lastMessage: {
+            content: "Obrigado pelas informações!",
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            isFromContact: true,
+          },
+          unreadCount: 0,
+        },
+        {
+          id: "conv3",
+          platform,
+          contact: {
+            id: "user3",
+            name: "Ana Beatriz",
+            avatar: "",
+            phone: "+5511998765432",
+            username: "anabeatriz",
+          },
+          lastMessage: {
+            content: "Vou verificar as datas e te retorno",
+            timestamp: new Date(Date.now() - 7200000).toISOString(),
+            isFromContact: false,
+          },
+          unreadCount: 0,
+        },
+      ]
+
+      setConversations(mockData)
+    } catch (error) {
+      console.error(`Error fetching ${platform} conversations:`, error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const fetchWhatsappMessages = async () => {
+  const fetchMessages = async (conversationId: string) => {
     setIsLoading(true)
     try {
-      let url = "/api/social/whatsapp"
-      if (filterUnread) url += "?unread=true"
-      if (filterAssigned) url += `${filterUnread ? "&" : "?"}assignedToMe=true`
+      // This would be a real API call in production
+      // const response = await fetch(`/api/social/${activeTab}/conversations/${conversationId}/messages`)
+      // const data = await response.json()
 
-      const response = await fetch(url)
-      if (!response.ok) throw new Error("Failed to fetch WhatsApp messages")
-      const data = await response.json()
-      setWhatsappMessages(data)
-    } catch (err) {
-      console.error("Error fetching WhatsApp messages:", err)
-      setError("Erro ao buscar mensagens do WhatsApp")
+      // Mock data for demonstration
+      const conversation = conversations.find((c) => c.id === conversationId)
+      if (!conversation) return
+
+      const mockMessages: Message[] = [
+        {
+          id: "msg1",
+          platform: activeTab as "instagram" | "whatsapp",
+          sender: {
+            id: conversation.contact.id,
+            name: conversation.contact.name,
+            avatar: conversation.contact.avatar,
+          },
+          content: "Olá, gostaria de saber mais sobre o pacote para Cancún que vi no Instagram.",
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          read: true,
+          replied: true,
+        },
+        {
+          id: "msg2",
+          platform: activeTab as "instagram" | "whatsapp",
+          sender: {
+            id: "agent",
+            name: "Agente",
+            avatar: "",
+          },
+          content:
+            "Olá! Claro, temos pacotes para Cancún com saídas em várias datas. Qual seria o período que você está pensando em viajar?",
+          timestamp: new Date(Date.now() - 3500000).toISOString(),
+          read: true,
+          replied: false,
+        },
+        {
+          id: "msg3",
+          platform: activeTab as "instagram" | "whatsapp",
+          sender: {
+            id: conversation.contact.id,
+            name: conversation.contact.name,
+            avatar: conversation.contact.avatar,
+          },
+          content: "Estou pensando em ir na segunda quinzena de julho, seria para mim e minha esposa.",
+          timestamp: new Date(Date.now() - 3400000).toISOString(),
+          read: true,
+          replied: true,
+        },
+        {
+          id: "msg4",
+          platform: activeTab as "instagram" | "whatsapp",
+          sender: {
+            id: "agent",
+            name: "Agente",
+            avatar: "",
+          },
+          content:
+            "Perfeito! Temos um pacote de 7 noites no Resort All-Inclusive Paradisus Cancún com voo direto. O valor para julho está em R$ 9.850 por pessoa. Posso te enviar mais detalhes?",
+          timestamp: new Date(Date.now() - 3300000).toISOString(),
+          read: true,
+          replied: false,
+        },
+        {
+          id: "msg5",
+          platform: activeTab as "instagram" | "whatsapp",
+          sender: {
+            id: conversation.contact.id,
+            name: conversation.contact.name,
+            avatar: conversation.contact.avatar,
+          },
+          content: "Sim, por favor! Gostaria de saber o que está incluso e as formas de pagamento.",
+          timestamp: new Date(Date.now() - 1800000).toISOString(),
+          read: false,
+          replied: false,
+        },
+      ]
+
+      setMessages(mockMessages)
+    } catch (error) {
+      console.error(`Error fetching messages:`, error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSendReply = async () => {
-    if (!selectedMessage || !replyText.trim()) return
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation) return
 
-    setIsLoading(true)
     try {
-      const endpoint = activeTab === "instagram" ? "/api/social/instagram" : "/api/social/whatsapp"
+      // This would be a real API call in production
+      // await fetch(`/api/social/${activeTab}/conversations/${selectedConversation}/messages`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ content: newMessage })
+      // })
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      // Optimistically update UI
+      const newMsg: Message = {
+        id: `temp-${Date.now()}`,
+        platform: activeTab as "instagram" | "whatsapp",
+        sender: {
+          id: "agent",
+          name: "Agente",
+          avatar: "",
         },
-        body: JSON.stringify({
-          messageId: selectedMessage.id,
-          reply: replyText,
-        }),
-      })
-
-      if (!response.ok) throw new Error(`Failed to send ${activeTab} reply`)
-
-      // Update the message in the UI
-      if (activeTab === "instagram") {
-        setInstagramMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === selectedMessage.id
-              ? {
-                  ...msg,
-                  replied: true,
-                  replies: [
-                    ...(msg.replies || []),
-                    {
-                      id: Date.now().toString(),
-                      content: replyText,
-                      timestamp: new Date().toISOString(),
-                      sentBy: "current-user", // This would be replaced with actual user ID
-                      sentByName: "You",
-                    },
-                  ],
-                }
-              : msg,
-          ),
-        )
-      } else {
-        setWhatsappMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === selectedMessage.id
-              ? {
-                  ...msg,
-                  replied: true,
-                  replies: [
-                    ...(msg.replies || []),
-                    {
-                      id: Date.now().toString(),
-                      content: replyText,
-                      timestamp: new Date().toISOString(),
-                      sentBy: "current-user", // This would be replaced with actual user ID
-                      sentByName: "You",
-                    },
-                  ],
-                }
-              : msg,
-          ),
-        )
+        content: newMessage,
+        timestamp: new Date().toISOString(),
+        read: true,
+        replied: false,
       }
 
-      setReplyText("")
+      setMessages((prev) => [...prev, newMsg])
 
-      // Mark as read if it wasn't already
-      if (!selectedMessage.read) {
-        handleMarkAsRead(selectedMessage.id)
-      }
-    } catch (err) {
-      console.error(`Error sending ${activeTab} reply:`, err)
-      setError(`Erro ao enviar resposta no ${activeTab}`)
-    } finally {
-      setIsLoading(false)
+      // Update conversation list
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === selectedConversation
+            ? {
+                ...conv,
+                lastMessage: {
+                  content: newMessage,
+                  timestamp: new Date().toISOString(),
+                  isFromContact: false,
+                },
+              }
+            : conv,
+        ),
+      )
+
+      setNewMessage("")
+    } catch (error) {
+      console.error("Error sending message:", error)
     }
   }
 
-  const handleMarkAsRead = async (messageId: string) => {
-    try {
-      const endpoint = activeTab === "instagram" ? "/api/social/instagram" : "/api/social/whatsapp"
-
-      await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messageId,
-          markAsRead: true,
-        }),
-      })
-
-      // Update the message in the UI
-      if (activeTab === "instagram") {
-        setInstagramMessages((prev) => prev.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg)))
-      } else {
-        setWhatsappMessages((prev) => prev.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg)))
-      }
-    } catch (err) {
-      console.error(`Error marking ${activeTab} message as read:`, err)
-    }
+  const formatMessageTime = (timestamp: string) => {
+    return format(new Date(timestamp), "HH:mm", { locale: ptBR })
   }
 
-  const handleAssignToMe = async (messageId: string) => {
-    try {
-      const endpoint = activeTab === "instagram" ? "/api/social/instagram" : "/api/social/whatsapp"
+  const formatConversationTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
 
-      await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messageId,
-          assignTo: "current-user", // This would be replaced with actual user ID
-        }),
-      })
-
-      // Update the message in the UI
-      if (activeTab === "instagram") {
-        setInstagramMessages((prev) =>
-          prev.map((msg) => (msg.id === messageId ? { ...msg, assignedTo: "current-user" } : msg)),
-        )
-      } else {
-        setWhatsappMessages((prev) =>
-          prev.map((msg) => (msg.id === messageId ? { ...msg, assignedTo: "current-user" } : msg)),
-        )
-      }
-    } catch (err) {
-      console.error(`Error assigning ${activeTab} message:`, err)
+    // If today, show time
+    if (date.toDateString() === now.toDateString()) {
+      return format(date, "HH:mm", { locale: ptBR })
     }
-  }
 
-  const handleCreateMockMessage = async () => {
-    try {
-      const endpoint = activeTab === "instagram" ? "/api/social/instagram" : "/api/social/whatsapp"
-
-      const mockData =
-        activeTab === "instagram"
-          ? {
-              mockMessage: {
-                username: "cliente_instagram",
-                content:
-                  "Olá, gostaria de informações sobre pacotes para Cancún. Vocês têm disponibilidade para julho?",
-              },
-            }
-          : {
-              mockMessage: {
-                name: "Cliente WhatsApp",
-                phoneNumber: "+5567999999999",
-                content: "Boa tarde! Estou interessado em pacotes para Gramado em dezembro. Podem me ajudar?",
-              },
-            }
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(mockData),
-      })
-
-      if (!response.ok) throw new Error(`Failed to create mock ${activeTab} message`)
-
-      // Refresh messages
-      if (activeTab === "instagram") {
-        fetchInstagramMessages()
-      } else {
-        fetchWhatsappMessages()
-      }
-    } catch (err) {
-      console.error(`Error creating mock ${activeTab} message:`, err)
+    // If this week, show day name
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays < 7) {
+      return format(date, "EEE", { locale: ptBR })
     }
-  }
 
-  const filteredMessages =
-    activeTab === "instagram"
-      ? instagramMessages.filter(
-          (msg) =>
-            msg.sender.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            msg.content.toLowerCase().includes(searchTerm.toLowerCase()),
-        )
-      : whatsappMessages.filter(
-          (msg) =>
-            msg.sender.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            msg.content.toLowerCase().includes(searchTerm.toLowerCase()),
-        )
+    // Otherwise show date
+    return format(date, "dd/MM/yyyy", { locale: ptBR })
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="p-4 border-b">
-          <TabsList className="mb-4 bg-gray-100 p-1 rounded-lg">
-            <TabsTrigger
-              value="instagram"
-              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
-              onClick={() => {
-                setSelectedMessage(null)
-                setReplyText("")
-              }}
-            >
-              <Instagram className="h-4 w-4 mr-2" />
-              <span>Instagram</span>
-              {instagramMessages.filter((m) => !m.read).length > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                  {instagramMessages.filter((m) => !m.read).length}
-                </span>
-              )}
-            </TabsTrigger>
+        <div className="border-b">
+          <TabsList className="w-full justify-start bg-transparent p-0">
             <TabsTrigger
               value="whatsapp"
-              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
-              onClick={() => {
-                setSelectedMessage(null)
-                setReplyText("")
-              }}
+              className="data-[state=active]:bg-green-50 data-[state=active]:text-green-600 data-[state=active]:border-b-2 data-[state=active]:border-green-500 rounded-none px-6 py-3"
             >
-              <MessageSquare className="h-4 w-4 mr-2" />
+              <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
               <span>WhatsApp</span>
-              {whatsappMessages.filter((m) => !m.read).length > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                  {whatsappMessages.filter((m) => !m.read).length}
-                </span>
-              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="instagram"
+              className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-6 py-3"
+            >
+              <Instagram className="h-5 w-5 mr-2 text-purple-600" />
+              <span>Instagram</span>
             </TabsTrigger>
           </TabsList>
-
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Buscar mensagens..."
-                className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="filterUnread"
-                  className="h-4 w-4 rounded text-primary-blue focus:ring-primary-blue"
-                  checked={filterUnread}
-                  onChange={() => setFilterUnread(!filterUnread)}
-                />
-                <label htmlFor="filterUnread" className="text-sm text-gray-700">
-                  Não lidas
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="filterAssigned"
-                  className="h-4 w-4 rounded text-primary-blue focus:ring-primary-blue"
-                  checked={filterAssigned}
-                  onChange={() => setFilterAssigned(!filterAssigned)}
-                />
-                <label htmlFor="filterAssigned" className="text-sm text-gray-700">
-                  Atribuídas a mim
-                </label>
-              </div>
-              <button
-                onClick={activeTab === "instagram" ? fetchInstagramMessages : fetchWhatsappMessages}
-                className="p-2 text-gray-600 hover:text-primary-blue hover:bg-gray-100 rounded-full"
-                title="Atualizar"
-              >
-                <RefreshCw className="h-5 w-5" />
-              </button>
-              <button
-                onClick={handleCreateMockMessage}
-                className="p-2 text-gray-600 hover:text-primary-blue hover:bg-gray-100 rounded-full"
-                title="Criar mensagem de teste"
-              >
-                <MessageSquare className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 h-[600px]">
-          <div className="col-span-1 border-r overflow-y-auto">
-            <TabsContent value="instagram" className="h-full m-0 p-0">
-              {isLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary-blue" />
-                  <span className="ml-2 text-gray-600 font-mon">Carregando mensagens...</span>
-                </div>
-              ) : filteredMessages.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 font-mon">Nenhuma mensagem encontrada.</div>
-              ) : (
-                <div className="divide-y">
-                  {filteredMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedMessage?.id === message.id ? "bg-gray-50" : ""
-                      } ${!message.read ? "border-l-4 border-primary-blue" : ""}`}
-                      onClick={() => {
-                        setSelectedMessage(message)
-                        if (!message.read) {
-                          handleMarkAsRead(message.id)
-                        }
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <div className="flex-shrink-0 h-10 w-10 relative">
-                          {message.sender.profilePicture ? (
-                            <Image
-                              src={message.sender.profilePicture || "/placeholder.svg"}
-                              alt={message.sender.username || "User"}
-                              width={40}
-                              height={40}
-                              className="rounded-full"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 bg-primary-blue text-white rounded-full flex items-center justify-center">
-                              {message.sender.username?.charAt(0).toUpperCase() || "U"}
-                            </div>
-                          )}
-                          {!message.read && (
-                            <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary-blue rounded-full"></div>
-                          )}
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">@{message.sender.username}</p>
-                          <p className="text-xs text-gray-500">
-                            {format(new Date(message.timestamp), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                          </p>
-                        </div>
-                        {message.replied && <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />}
-                      </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">{message.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 h-[calc(100vh-300px)] min-h-[500px]">
+          {/* Conversations List */}
+          <div className="border-r overflow-y-auto">
+            <div className="p-3 border-b">
+              <Input
+                placeholder={`Pesquisar ${activeTab === "whatsapp" ? "contatos" : "mensagens"}...`}
+                className="w-full"
+              />
+            </div>
 
-            <TabsContent value="whatsapp" className="h-full m-0 p-0">
-              {isLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary-blue" />
-                  <span className="ml-2 text-gray-600 font-mon">Carregando mensagens...</span>
-                </div>
-              ) : filteredMessages.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 font-mon">Nenhuma mensagem encontrada.</div>
-              ) : (
-                <div className="divide-y">
-                  {filteredMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedMessage?.id === message.id ? "bg-gray-50" : ""
-                      } ${!message.read ? "border-l-4 border-green-500" : ""}`}
-                      onClick={() => {
-                        setSelectedMessage(message)
-                        if (!message.read) {
-                          handleMarkAsRead(message.id)
-                        }
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <div className="flex-shrink-0 h-10 w-10 relative">
-                          {message.sender.profilePicture ? (
-                            <Image
-                              src={message.sender.profilePicture || "/placeholder.svg"}
-                              alt={message.sender.name || "User"}
-                              width={40}
-                              height={40}
-                              className="rounded-full"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 bg-green-500 text-white rounded-full flex items-center justify-center">
-                              {message.sender.name?.charAt(0).toUpperCase() || "U"}
-                            </div>
-                          )}
-                          {!message.read && (
-                            <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full"></div>
-                          )}
+            {isLoading && conversations.length === 0 ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <div>
+                {conversations.map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${selectedConversation === conversation.id ? "bg-gray-100" : ""}`}
+                    onClick={() => setSelectedConversation(conversation.id)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={conversation.contact.avatar} />
+                        <AvatarFallback className="bg-primary-blue text-white">
+                          {conversation.contact.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center">
+                          <p className="text-sm font-medium truncate">{conversation.contact.name}</p>
+                          <span className="text-xs text-gray-500">
+                            {formatConversationTime(conversation.lastMessage.timestamp)}
+                          </span>
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">{message.sender.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {format(new Date(message.timestamp), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs text-gray-500 truncate">
+                            {conversation.lastMessage.isFromContact ? "" : "Você: "}
+                            {conversation.lastMessage.content}
                           </p>
+
+                          {conversation.unreadCount > 0 && (
+                            <Badge
+                              variant="default"
+                              className={activeTab === "whatsapp" ? "bg-green-500" : "bg-purple-500"}
+                            >
+                              {conversation.unreadCount}
+                            </Badge>
+                          )}
                         </div>
-                        {message.replied && <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />}
                       </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">{message.content}</p>
                     </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
+          {/* Messages */}
           <div className="col-span-2 flex flex-col">
-            {selectedMessage ? (
+            {selectedConversation ? (
               <>
-                <div className="p-4 border-b flex justify-between items-center">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      {activeTab === "instagram" ? (
-                        selectedMessage.sender.profilePicture ? (
-                          <Image
-                            src={selectedMessage.sender.profilePicture || "/placeholder.svg"}
-                            alt={selectedMessage.sender.username || "User"}
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 bg-primary-blue text-white rounded-full flex items-center justify-center">
-                            {selectedMessage.sender.username?.charAt(0).toUpperCase() || "U"}
-                          </div>
-                        )
-                      ) : selectedMessage.sender.profilePicture ? (
-                        <Image
-                          src={selectedMessage.sender.profilePicture || "/placeholder.svg"}
-                          alt={selectedMessage.sender.name || "User"}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 bg-green-500 text-white rounded-full flex items-center justify-center">
-                          {selectedMessage.sender.name?.charAt(0).toUpperCase() || "U"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">
-                        {activeTab === "instagram"
-                          ? `@${selectedMessage.sender.username}`
-                          : selectedMessage.sender.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {activeTab === "instagram" ? "Instagram" : `${selectedMessage.sender.phoneNumber} • WhatsApp`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {selectedMessage.assignedTo ? (
-                      <span className="flex items-center text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-                        <UserCheck className="h-3 w-3 mr-1" />
-                        Atribuído
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleAssignToMe(selectedMessage.id)}
-                        className="text-xs text-primary-blue hover:bg-blue-50 px-2 py-1 rounded-full flex items-center"
-                      >
-                        <UserCheck className="h-3 w-3 mr-1" />
-                        Atribuir a mim
-                      </button>
-                    )}
-                    {selectedMessage.read ? (
-                      <span className="flex items-center text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Lida
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleMarkAsRead(selectedMessage.id)}
-                        className="text-xs text-green-600 hover:bg-green-50 px-2 py-1 rounded-full flex items-center"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Marcar como lida
-                      </button>
-                    )}
-                  </div>
-                </div>
+                {/* Chat header */}
+                <div className="p-3 border-b flex items-center space-x-3">
+                  {conversations.find((c) => c.id === selectedConversation) && (
+                    <>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={conversations.find((c) => c.id === selectedConversation)?.contact.avatar} />
+                        <AvatarFallback className="bg-primary-blue text-white">
+                          {conversations
+                            .find((c) => c.id === selectedConversation)
+                            ?.contact.name.substring(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
 
-                <div className="flex-grow overflow-y-auto p-4">
-                  <div className="space-y-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0 h-8 w-8">
-                        {activeTab === "instagram" ? (
-                          selectedMessage.sender.profilePicture ? (
-                            <Image
-                              src={selectedMessage.sender.profilePicture || "/placeholder.svg"}
-                              alt={selectedMessage.sender.username || "User"}
-                              width={32}
-                              height={32}
-                              className="rounded-full"
-                            />
-                          ) : (
-                            <div className="h-8 w-8 bg-primary-blue text-white rounded-full flex items-center justify-center text-xs">
-                              {selectedMessage.sender.username?.charAt(0).toUpperCase() || "U"}
-                            </div>
-                          )
-                        ) : selectedMessage.sender.profilePicture ? (
-                          <Image
-                            src={selectedMessage.sender.profilePicture || "/placeholder.svg"}
-                            alt={selectedMessage.sender.name || "User"}
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                          />
-                        ) : (
-                          <div className="h-8 w-8 bg-green-500 text-white rounded-full flex items-center justify-center text-xs">
-                            {selectedMessage.sender.name?.charAt(0).toUpperCase() || "U"}
-                          </div>
-                        )}
-                      </div>
-                      <div className="ml-2 bg-gray-100 rounded-lg p-3 max-w-[80%]">
-                        <p className="text-sm text-gray-800">{selectedMessage.content}</p>
-                        <p className="text-xs text-gray-500 mt-1 flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {format(new Date(selectedMessage.timestamp), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      <div>
+                        <p className="font-medium">
+                          {conversations.find((c) => c.id === selectedConversation)?.contact.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {activeTab === "whatsapp"
+                            ? conversations.find((c) => c.id === selectedConversation)?.contact.phone
+                            : `@${conversations.find((c) => c.id === selectedConversation)?.contact.username}`}
                         </p>
                       </div>
-                    </div>
-
-                    {selectedMessage.replies?.map((reply) => (
-                      <div key={reply.id} className="flex justify-end">
-                        <div className="mr-2 bg-primary-blue text-white rounded-lg p-3 max-w-[80%]">
-                          <p className="text-sm">{reply.content}</p>
-                          <p className="text-xs text-white/70 mt-1 flex items-center justify-end">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {format(new Date(reply.timestamp), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                          </p>
-                        </div>
-                        <div className="flex-shrink-0 h-8 w-8">
-                          <div className="h-8 w-8 bg-second-blue text-white rounded-full flex items-center justify-center text-xs">
-                            {reply.sentByName?.charAt(0).toUpperCase() || "A"}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    </>
+                  )}
                 </div>
 
-                <div className="p-4 border-t">
-                  <div className="flex items-center">
-                    <textarea
-                      className="flex-grow p-3 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon resize-none"
-                      placeholder={`Digite sua resposta para ${
-                        activeTab === "instagram" ? selectedMessage.sender.username : selectedMessage.sender.name
-                      }...`}
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      rows={2}
+                {/* Messages list */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                  {isLoading && messages.length === 0 ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.sender.id === "agent" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[70%] rounded-lg p-3 ${
+                            message.sender.id === "agent"
+                              ? activeTab === "whatsapp"
+                                ? "bg-green-100"
+                                : "bg-purple-100"
+                              : "bg-white border"
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs text-gray-500 text-right mt-1">
+                            {formatMessageTime(message.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Message input */}
+                <div className="p-3 border-t">
+                  <div className="flex space-x-2">
+                    <Textarea
+                      placeholder="Digite sua mensagem..."
+                      className="flex-1 resize-none"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSendMessage()
+                        }
+                      }}
                     />
-                    <button
-                      className="p-3 bg-primary-blue text-white rounded-r-md hover:bg-second-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={handleSendReply}
-                      disabled={!replyText.trim() || isLoading}
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim()}
+                      className={
+                        activeTab === "whatsapp"
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-purple-600 hover:bg-purple-700"
+                      }
                     >
-                      {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                    </button>
+                      <Send className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <MessageSquare className="h-16 w-16 mb-4 text-gray-300" />
-                <p className="text-lg font-mon">Selecione uma mensagem para visualizar</p>
-                <p className="text-sm font-mon mt-2">
-                  Você pode responder diretamente do sistema para o{" "}
-                  {activeTab === "instagram" ? "Instagram" : "WhatsApp"}
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-gray-50">
+                <div className={`rounded-full p-4 ${activeTab === "whatsapp" ? "bg-green-100" : "bg-purple-100"} mb-4`}>
+                  {activeTab === "whatsapp" ? (
+                    <MessageSquare className="h-8 w-8 text-green-600" />
+                  ) : (
+                    <Instagram className="h-8 w-8 text-purple-600" />
+                  )}
+                </div>
+                <h3 className="text-lg font-medium mb-2">
+                  {activeTab === "whatsapp" ? "WhatsApp Business" : "Instagram Direct"}
+                </h3>
+                <p className="text-gray-500 max-w-md">
+                  Selecione uma conversa para visualizar e responder às mensagens dos seus clientes.
                 </p>
               </div>
             )}

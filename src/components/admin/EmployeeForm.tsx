@@ -1,490 +1,479 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import type React from "react"
-import {
-  Loader2,
-  Save,
-  X,
-  User,
-  Mail,
-  Lock,
-  UserCog,
-  Phone,
-  MapPin,
-  Calendar,
-  CreditCard,
-  Building,
-  Briefcase,
-} from "lucide-react"
 
-interface EmployeeFormProps {
-  employee?: any
-  onSuccess: () => void
-  onCancel: () => void
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2, ArrowLeft, Save } from "lucide-react"
+import { format } from "date-fns"
+
+interface User {
+  id: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  role?: string | null
+  createdAt?: string
+  lastLogin?: string
+  status?: "active" | "inactive" | "pending"
+  employeeDetails?: {
+    position?: string
+    department?: string
+    hireDate?: string
+    salary?: number
+    manager?: string
+    emergencyContact?: {
+      name: string
+      relationship: string
+      phone: string
+    }
+    documents?: {
+      type: string
+      number: string
+      expiryDate?: string
+    }[]
+    bankDetails?: {
+      bank: string
+      accountType: string
+      accountNumber: string
+      branch: string
+    }
+    address?: {
+      street: string
+      number: string
+      complement?: string
+      neighborhood: string
+      city: string
+      state: string
+      zipCode: string
+      country: string
+    }
+  }
+  performanceHistory?: {
+    date: string
+    type: "promotion" | "salary" | "review" | "award" | "warning"
+    description: string
+    value?: number
+  }[]
 }
 
-export function EmployeeForm({ employee, onSuccess, onCancel }: EmployeeFormProps) {
+interface EmployeeFormProps {
+  employee: User | null
+  onClose: () => void
+}
+
+export function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
+  const [activeTab, setActiveTab] = useState("personal")
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    email: "",
-    password: "",
-    role: "agent",
-    salary: "",
-    admissionDate: "",
-    department: "",
-    position: "",
-    phoneNumber: "",
-    address: "",
-    emergencyContact: "",
-    birthDate: "",
-    documentId: "",
-    bankInfo: {
-      bank: "",
-      accountType: "",
-      accountNumber: "",
-      agency: "",
+    id: employee?.id || "",
+    name: employee?.name || "",
+    email: employee?.email || "",
+    role: employee?.role || "agent",
+    status: employee?.status || "active",
+    employeeDetails: {
+      position: employee?.employeeDetails?.position || "",
+      department: employee?.employeeDetails?.department || "",
+      hireDate: employee?.employeeDetails?.hireDate || format(new Date(), "yyyy-MM-dd"),
+      salary: employee?.employeeDetails?.salary || 0,
+      manager: employee?.employeeDetails?.manager || "",
+      emergencyContact: {
+        name: employee?.employeeDetails?.emergencyContact?.name || "",
+        relationship: employee?.employeeDetails?.emergencyContact?.relationship || "",
+        phone: employee?.employeeDetails?.emergencyContact?.phone || "",
+      },
+      bankDetails: {
+        bank: employee?.employeeDetails?.bankDetails?.bank || "",
+        accountType: employee?.employeeDetails?.bankDetails?.accountType || "",
+        accountNumber: employee?.employeeDetails?.bankDetails?.accountNumber || "",
+        branch: employee?.employeeDetails?.bankDetails?.branch || "",
+      },
+      address: {
+        street: employee?.employeeDetails?.address?.street || "",
+        number: employee?.employeeDetails?.address?.number || "",
+        complement: employee?.employeeDetails?.address?.complement || "",
+        neighborhood: employee?.employeeDetails?.address?.neighborhood || "",
+        city: employee?.employeeDetails?.address?.city || "",
+        state: employee?.employeeDetails?.address?.state || "",
+        zipCode: employee?.employeeDetails?.address?.zipCode || "",
+        country: employee?.employeeDetails?.address?.country || "Brasil",
+      },
     },
   })
-  const [formError, setFormError] = useState<string | null>(null)
-  const [formSuccess, setFormSuccess] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
-  // Initialize form with employee data if editing
-  useEffect(() => {
-    if (employee) {
-      setFormData({
-        id: employee.id || "",
-        name: employee.name || "",
-        email: employee.email || "",
-        password: "", // Don't populate password for security
-        role: employee.role || "agent",
-        salary: employee.salary ? employee.salary.toString() : "",
-        admissionDate: employee.admissionDate ? new Date(employee.admissionDate).toISOString().split("T")[0] : "",
-        department: employee.department || "",
-        position: employee.position || "",
-        phoneNumber: employee.phoneNumber || "",
-        address: employee.address || "",
-        emergencyContact: employee.emergencyContact || "",
-        birthDate: employee.birthDate ? new Date(employee.birthDate).toISOString().split("T")[0] : "",
-        documentId: employee.documentId || "",
-        bankInfo: {
-          bank: employee.bankInfo?.bank || "",
-          accountType: employee.bankInfo?.accountType || "",
-          accountNumber: employee.bankInfo?.accountNumber || "",
-          agency: employee.bankInfo?.agency || "",
-        },
-      })
-    }
-  }, [employee])
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
 
-  const handleChange = (field: string, value: string) => {
-    if (field.includes(".")) {
-      const [parent, child] = field.split(".")
+    if (name.includes(".")) {
+      const [section, field] = name.split(".")
       setFormData((prev) => ({
         ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value,
+        [section]: {
+          ...prev[section as keyof typeof prev],
+          [field]: value,
         },
       }))
     } else {
       setFormData((prev) => ({
         ...prev,
-        [field]: value,
+        [name]: value,
+      }))
+    }
+  }
+
+  const handleNestedInputChange = (section: string, subsection: string, field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      employeeDetails: {
+        ...prev.employeeDetails,
+        [section]: {
+          ...prev.employeeDetails[section as keyof typeof prev.employeeDetails],
+          [field]: value,
+        },
+      },
+    }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
+    if (name.includes(".")) {
+      const [section, field] = name.split(".")
+      setFormData((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section as keyof typeof prev],
+          [field]: value,
+        },
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
       }))
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setFormError(null)
-    setFormSuccess(null)
-
-    // Validate required fields
-    const requiredFields = ["name", "email", "role"]
-    const missingFields = requiredFields.filter((field) => !formData[field])
-
-    // Also require password for new employees
-    if (!employee && !formData.password) {
-      missingFields.push("password")
-    }
-
-    if (missingFields.length > 0) {
-      setFormError(`Campos obrigatórios não preenchidos: ${missingFields.join(", ")}`)
-      return
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.email)) {
-      setFormError("Por favor, insira um email válido.")
-      return
-    }
-
-    // Validate password length if provided
-    if (formData.password && formData.password.length < 6) {
-      setFormError("A senha deve ter pelo menos 6 caracteres.")
-      return
-    }
+    setIsLoading(true)
 
     try {
-      setIsLoading(true)
+      // This would be a real API call in production
+      // const response = await fetch('/api/employees', {
+      //   method: employee ? 'PUT' : 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData)
+      // })
 
-      // Prepare data for API
-      const employeeData = {
-        ...formData,
-        salary: formData.salary ? Number.parseFloat(formData.salary) : undefined,
-      }
+      // if (!response.ok) throw new Error('Failed to save employee')
 
-      // If editing and password is empty, remove it from the request
-      if (employee && !employeeData.password) {
-        delete employeeData.password
-      }
+      // Mock success
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      const response = await fetch("/api/employees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(employeeData),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Erro ao salvar funcionário")
-      }
-
-      setFormSuccess(formData.id ? "Funcionário atualizado com sucesso!" : "Funcionário adicionado com sucesso!")
-
-      // Notify parent component
-      setTimeout(() => {
-        onSuccess()
-      }, 1500)
+      onClose()
     } catch (error) {
       console.error("Error saving employee:", error)
-      setFormError(error instanceof Error ? error.message : "Erro ao salvar funcionário")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-      <h2 className="text-xl font-semibold text-primary-blue mb-6 font-mon">
-        {employee ? "Editar Funcionário" : "Adicionar Novo Funcionário"}
-      </h2>
-
-      {formError && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 font-mon">
-          <p>{formError}</p>
-        </div>
-      )}
-
-      {formSuccess && (
-        <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 font-mon">
-          <p>{formSuccess}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <User className="h-4 w-4" />
-              Nome <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Nome completo"
-              required
-            />
+    <form onSubmit={handleSubmit}>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center">
+            <Button type="button" variant="ghost" size="sm" className="mr-2" onClick={onClose}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <CardTitle>{employee ? "Editar Funcionário" : "Adicionar Funcionário"}</CardTitle>
+              <CardDescription>
+                {employee
+                  ? `Editando informações de ${employee.name}`
+                  : "Preencha os dados para adicionar um novo funcionário"}
+              </CardDescription>
+            </div>
           </div>
+        </CardHeader>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Mail className="h-4 w-4" />
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="email"
-              id="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              placeholder="email@exemplo.com"
-              required
-            />
-          </div>
-        </div>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="mb-6 grid grid-cols-4 bg-gray-100">
+              <TabsTrigger
+                value="personal"
+                className="data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+              >
+                Dados Pessoais
+              </TabsTrigger>
+              <TabsTrigger
+                value="employment"
+                className="data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+              >
+                Emprego
+              </TabsTrigger>
+              <TabsTrigger
+                value="financial"
+                className="data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+              >
+                Financeiro
+              </TabsTrigger>
+              <TabsTrigger
+                value="address"
+                className="data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+              >
+                Endereço
+              </TabsTrigger>
+            </TabsList>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Lock className="h-4 w-4" />
-              Senha {!employee && <span className="text-red-500">*</span>}
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="password"
-              id="password"
-              value={formData.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-              placeholder={employee ? "Deixe em branco para manter a senha atual" : "Mínimo de 6 caracteres"}
-              required={!employee}
-            />
-            {employee && <p className="text-xs text-gray-500 font-mon">Deixe em branco para manter a senha atual</p>}
-          </div>
+            <TabsContent value="personal" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
+                </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <UserCog className="h-4 w-4" />
-              Função <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              id="role"
-              value={formData.role}
-              onChange={(e) => handleChange("role", e.target.value)}
-              required
-            >
-              <option value="admin">Administrador</option>
-              <option value="agent">Agente de Turismo</option>
-            </select>
-          </div>
-        </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Building className="h-4 w-4" />
-              Departamento
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="department"
-              value={formData.department}
-              onChange={(e) => handleChange("department", e.target.value)}
-              placeholder="Ex: Vendas"
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    name="status"
+                    value={formData.status}
+                    onValueChange={(value) => handleSelectChange("status", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
+                      <SelectItem value="pending">Pendente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Briefcase className="h-4 w-4" />
-              Cargo
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="position"
-              value={formData.position}
-              onChange={(e) => handleChange("position", e.target.value)}
-              placeholder="Ex: Agente de Viagens"
-            />
-          </div>
-        </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Função</Label>
+                  <Select
+                    name="role"
+                    value={formData.role}
+                    onValueChange={(value) => handleSelectChange("role", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a função" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="agent">Agente</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Calendar className="h-4 w-4" />
-              Data de Admissão
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="date"
-              id="admissionDate"
-              value={formData.admissionDate}
-              onChange={(e) => handleChange("admissionDate", e.target.value)}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label>Contato de Emergência</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Input
+                    placeholder="Nome"
+                    value={formData.employeeDetails.emergencyContact.name}
+                    onChange={(e) => handleNestedInputChange("emergencyContact", "", "name", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Relação"
+                    value={formData.employeeDetails.emergencyContact.relationship}
+                    onChange={(e) => handleNestedInputChange("emergencyContact", "", "relationship", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Telefone"
+                    value={formData.employeeDetails.emergencyContact.phone}
+                    onChange={(e) => handleNestedInputChange("emergencyContact", "", "phone", e.target.value)}
+                  />
+                </div>
+              </div>
+            </TabsContent>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <CreditCard className="h-4 w-4" />
-              Salário
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="number"
-              id="salary"
-              value={formData.salary}
-              onChange={(e) => handleChange("salary", e.target.value)}
-              placeholder="Ex: 3500"
-              step="0.01"
-            />
-          </div>
-        </div>
+            <TabsContent value="employment" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="employeeDetails.position">Cargo</Label>
+                  <Input
+                    id="employeeDetails.position"
+                    name="employeeDetails.position"
+                    value={formData.employeeDetails.position}
+                    onChange={handleInputChange}
+                  />
+                </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Phone className="h-4 w-4" />
-              Telefone
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="tel"
-              id="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={(e) => handleChange("phoneNumber", e.target.value)}
-              placeholder="Ex: (67) 99999-9999"
-            />
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employeeDetails.department">Departamento</Label>
+                  <Input
+                    id="employeeDetails.department"
+                    name="employeeDetails.department"
+                    value={formData.employeeDetails.department}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <MapPin className="h-4 w-4" />
-              Endereço
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-              placeholder="Ex: Rua Exemplo, 123"
-            />
-          </div>
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="employeeDetails.hireDate">Data de Admissão</Label>
+                  <Input
+                    id="employeeDetails.hireDate"
+                    name="employeeDetails.hireDate"
+                    type="date"
+                    value={formData.employeeDetails.hireDate}
+                    onChange={handleInputChange}
+                  />
+                </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Phone className="h-4 w-4" />
-              Contato de Emergência
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="emergencyContact"
-              value={formData.emergencyContact}
-              onChange={(e) => handleChange("emergencyContact", e.target.value)}
-              placeholder="Nome e telefone"
-            />
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employeeDetails.manager">Gestor</Label>
+                  <Input
+                    id="employeeDetails.manager"
+                    name="employeeDetails.manager"
+                    value={formData.employeeDetails.manager}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            </TabsContent>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Calendar className="h-4 w-4" />
-              Data de Nascimento
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="date"
-              id="birthDate"
-              value={formData.birthDate}
-              onChange={(e) => handleChange("birthDate", e.target.value)}
-            />
-          </div>
-        </div>
+            <TabsContent value="financial" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="employeeDetails.salary">Salário (R$)</Label>
+                <Input
+                  id="employeeDetails.salary"
+                  name="employeeDetails.salary"
+                  type="number"
+                  value={formData.employeeDetails.salary.toString()}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-        <h3 className="text-lg font-semibold text-primary-blue mb-4 mt-8 font-mon">Informações Bancárias</h3>
+              <div className="space-y-2">
+                <Label>Dados Bancários</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Banco"
+                    value={formData.employeeDetails.bankDetails.bank}
+                    onChange={(e) => handleNestedInputChange("bankDetails", "", "bank", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Tipo de Conta"
+                    value={formData.employeeDetails.bankDetails.accountType}
+                    onChange={(e) => handleNestedInputChange("bankDetails", "", "accountType", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Número da Conta"
+                    value={formData.employeeDetails.bankDetails.accountNumber}
+                    onChange={(e) => handleNestedInputChange("bankDetails", "", "accountNumber", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Agência"
+                    value={formData.employeeDetails.bankDetails.branch}
+                    onChange={(e) => handleNestedInputChange("bankDetails", "", "branch", e.target.value)}
+                  />
+                </div>
+              </div>
+            </TabsContent>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Building className="h-4 w-4" />
-              Banco
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="bankInfo.bank"
-              value={formData.bankInfo.bank}
-              onChange={(e) => handleChange("bankInfo.bank", e.target.value)}
-              placeholder="Ex: Banco do Brasil"
-            />
-          </div>
+            <TabsContent value="address" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Rua</Label>
+                  <Input
+                    value={formData.employeeDetails.address.street}
+                    onChange={(e) => handleNestedInputChange("address", "", "street", e.target.value)}
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <CreditCard className="h-4 w-4" />
-              Tipo de Conta
-            </label>
-            <select
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              id="bankInfo.accountType"
-              value={formData.bankInfo.accountType}
-              onChange={(e) => handleChange("bankInfo.accountType", e.target.value)}
-            >
-              <option value="">Selecione...</option>
-              <option value="corrente">Conta Corrente</option>
-              <option value="poupanca">Conta Poupança</option>
-              <option value="salario">Conta Salário</option>
-            </select>
-          </div>
-        </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Número</Label>
+                    <Input
+                      value={formData.employeeDetails.address.number}
+                      onChange={(e) => handleNestedInputChange("address", "", "number", e.target.value)}
+                    />
+                  </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <CreditCard className="h-4 w-4" />
-              Número da Conta
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="bankInfo.accountNumber"
-              value={formData.bankInfo.accountNumber}
-              onChange={(e) => handleChange("bankInfo.accountNumber", e.target.value)}
-              placeholder="Ex: 12345-6"
-            />
-          </div>
+                  <div className="space-y-2">
+                    <Label>Complemento</Label>
+                    <Input
+                      value={formData.employeeDetails.address.complement}
+                      onChange={(e) => handleNestedInputChange("address", "", "complement", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-primary-blue font-mon font-medium">
-              <Building className="h-4 w-4" />
-              Agência
-            </label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-white text-gray-800 font-mon"
-              type="text"
-              id="bankInfo.agency"
-              value={formData.bankInfo.agency}
-              onChange={(e) => handleChange("bankInfo.agency", e.target.value)}
-              placeholder="Ex: 1234"
-            />
-          </div>
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Bairro</Label>
+                  <Input
+                    value={formData.employeeDetails.address.neighborhood}
+                    onChange={(e) => handleNestedInputChange("address", "", "neighborhood", e.target.value)}
+                  />
+                </div>
 
-        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors font-mon font-medium flex items-center justify-center"
-            disabled={isLoading}
-          >
-            <X className="h-4 w-4 mr-2" />
+                <div className="space-y-2">
+                  <Label>Cidade</Label>
+                  <Input
+                    value={formData.employeeDetails.address.city}
+                    onChange={(e) => handleNestedInputChange("address", "", "city", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Estado</Label>
+                  <Input
+                    value={formData.employeeDetails.address.state}
+                    onChange={(e) => handleNestedInputChange("address", "", "state", e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>CEP</Label>
+                  <Input
+                    value={formData.employeeDetails.address.zipCode}
+                    onChange={(e) => handleNestedInputChange("address", "", "zipCode", e.target.value)}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+
+        <CardFooter className="flex justify-between">
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
-          </button>
-
-          <button
-            type="submit"
-            className="px-6 py-3 bg-primary-blue text-white rounded-md hover:bg-second-blue transition-colors font-mon font-medium flex items-center justify-center min-w-[160px]"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                {employee ? "Atualizar" : "Adicionar"}
-              </>
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Save className="mr-2 h-4 w-4" />
+            Salvar
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
   )
 }
 

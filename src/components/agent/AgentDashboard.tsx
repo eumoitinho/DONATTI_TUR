@@ -101,8 +101,6 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
 
     // If both dates are selected, filter promos
     if (range.from && range.to) {
-      const startDateStr = range.from.toISOString().split("T")[0]
-      const endDateStr = range.to.toISOString().split("T")[0]
       fetchPromos()
     } else {
       fetchPromos()

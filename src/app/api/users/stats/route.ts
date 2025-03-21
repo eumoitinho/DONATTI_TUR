@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../auth/[...nextauth]/options"
 import { redis, REDIS_KEYS } from "@/lib/redis"
-import type { User, UserStats } from "@/types/user"
+import type { User, UserStats } from "../../../../types/user"
 
 export async function GET(req: NextRequest) {
   try {

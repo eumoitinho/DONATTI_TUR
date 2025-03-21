@@ -19,17 +19,53 @@ export interface User {
   birthDate?: string
   documentId?: string
   bankInfo?: {
-    bank?: string
-    accountType?: string
-    accountNumber?: string
-    agency?: string
-  }
-  performanceHistory?: {
-    date: string
-    type: "review" | "promotion" | "warning" | "bonus"
-    description: string
-    value?: number
+    bank: string
+    accountType: string
+    accountNumber: string
+    agency: string
   }[]
+}
+
+export interface EmployeeDetails {
+  position?: string
+  department?: string
+  hireDate?: string
+  salary?: number
+  manager?: string
+  emergencyContact?: {
+    name: string
+    relationship: string
+    phone: string
+  }
+  documents?: {
+    type: string
+    number: string
+    expiryDate?: string
+  }[]
+  bankDetails?: {
+    bank: string
+    accountType: string
+    accountNumber: string
+    branch: string
+  }
+  address?: {
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+  }
+}
+
+export interface PerformanceHistoryItem {
+  date: string
+  type: "promotion" | "salary" | "review" | "award" | "warning"
+  description: string
+  value?: number
+  notes?: string
 }
 
 export interface UserStats {
@@ -52,6 +88,7 @@ export interface UserStats {
 }
 
 export interface EmployeePerformance {
+  id: string
   userId: string
   period: string
   metrics: {
@@ -63,5 +100,8 @@ export interface EmployeePerformance {
   }
   notes: string
   rating: number
+  createdAt: string
+  updatedAt: string
+  createdBy: string
 }
 

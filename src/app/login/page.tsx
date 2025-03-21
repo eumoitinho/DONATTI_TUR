@@ -21,7 +21,7 @@ export default function LoginPage() {
       if (session.user.role === "admin") {
         router.push("/admin")
       } else {
-        router.push("/agent")
+        router.push("/agente")
       }
     }
   }, [session, status, router])
@@ -56,7 +56,7 @@ export default function LoginPage() {
         if (sessionData?.user?.role === "admin") {
           router.push("/admin")
         } else {
-          router.push("/agent")
+          router.push("/agente")
         }
       }
     } catch (error) {

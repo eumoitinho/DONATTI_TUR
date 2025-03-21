@@ -2,7 +2,7 @@ import type React from "react"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
-import { SessionProvider } from "next-auth/react"
+import { AuthProvider } from "@/providers/AuthProvider"
 
 // Configurando a fonte Inter com suporte ao subset 'latin'
 const inter = Inter({ subsets: ["latin"] })
@@ -17,11 +17,11 @@ export default function RootLayout({
     // Estrutura básica do HTML
     <html lang="pt-BR">
       {/* Corpo da página com classe para estilos específicos */}
-      <body className="max-w-[2000px] mx-auto">
-        <SessionProvider>
+      <body className={`max-w-[2000px] mx-auto ${inter.className}`}>
+        <AuthProvider>
           {/* Renderizando o conteúdo das páginas filhas */}
           {children}
-        </SessionProvider>
+        </AuthProvider>
         {/* Script de integração com o Facebook Pixel com estratégia "afterInteractive" */}
         <Script id="pixel-meta" strategy="afterInteractive">
           {`

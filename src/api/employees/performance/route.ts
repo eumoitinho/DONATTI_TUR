@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "../../auth/[...nextauth]/options"
+import { authOptions } from "@/app/api/auth/[...nextauth]/options"
 import { nanoid } from "nanoid"
 import { z } from "zod"
 import { redis, REDIS_KEYS } from "@/lib/redis"

@@ -147,6 +147,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
         quality: 0.95,
         width: 1080,
         height: 1920,
+        cacheBust: true, // Add cache busting to avoid CORS issues
       })
 
       // Restaurar o estilo original
