@@ -193,9 +193,10 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
       <div className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
         {/* Template for the promotional image */}
         <div
-          ref={templateRef}
-          className="w-[540px] h-[960px] relative"
-        >
+           ref={templateRef}
+           className="w-[540px] h-[960px] relative"
+           style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
+         >
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo">
             {/* Background template image */}
             <img
