@@ -1,7 +1,7 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { toPng } from "html-to-image"
-import { Loader2, Download } from "lucide-react"
+import { Loader2, Download, RefreshCw } from "lucide-react"
 
 interface PromoImageGeneratorProps {
   promo: any
@@ -17,6 +17,42 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
   // Calculate values
   const baseValue = Number.parseFloat(promo.VALOR)
   const parcelas = Number.parseInt(promo.PARCELAS || "10", 10)
+
+  // Fetch destination image when component mounts or destination changes
+  useEffect(() => {
+    fetchDestinationImage()
+  }, [promo.DESTINO])
+
+  // Function to fetch destination image from Unsplash API
+  const fetchDestinationImage = async () => {
+    if (!promo.DESTINO) return
+
+    setIsLoadingImage(true)
+    setError(null)
+
+    try {
+      // Using Unsplash API to search for destination images
+      const response = await fetch(`/api/image-search?query=${encodeURIComponent(promo.DESTINO + " turismo")}`)
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch destination image")
+      }
+
+      const data = await response.json()
+
+      if (data.results && data.results.length > 0) {
+        // Get the first image result
+        setDestinationImage(data.results[0].urls.regular)
+      } else {
+        setError("Não foi possível encontrar imagens para este destino")
+      }
+    } catch (err) {
+      console.error("Error fetching destination image:", err)
+      setError("Erro ao buscar imagem do destino")
+    } finally {
+      setIsLoadingImage(false)
+    }
+  }
 
 
   // Get region based on destination
@@ -123,9 +159,19 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
+  
   return (
     <div className="flex flex-col items-center">
       <div className="mb-4 flex gap-4">
+        <button
+          onClick={fetchDestinationImage}
+          disabled={isLoadingImage}
+          className="flex items-center gap-2 px-4 py-2 bg-second-blue text-white rounded-md hover:bg-primary-blue transition-colors disabled:opacity-50"
+        >
+          {isLoadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          Buscar imagem
+        </button>
+
         <button
           onClick={generateImage}
           disabled={isGenerating}
@@ -135,7 +181,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           Baixar imagem
         </button>
       </div>
-
       {error && <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm w-full">{error}</div>}
 
       <div className="relative w-[540px] h-[960px] overflow-hidden border border-gray-300 rounded-lg shadow-lg">
