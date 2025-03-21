@@ -54,7 +54,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
     }
   }
 
-
   // Get region based on destination
   const getRegion = (destination: string) => {
     const northeastCities = [
@@ -196,17 +195,18 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           className="w-[540px] h-[960px] relative"
           style={{ transform: "scale(0.5)", transformOrigin: "top left" }}
         >
-                        {/* Destination image overlay */}
-                        {destinationImage && (
-                <div className="absolute top-0 left-0 w-full h-[1920px] overflow-hidden z-0">
-                  <img
-                    src={destinationImage || "/placeholder.svg"}
-                    alt={promo.DESTINO}
-                    className="w-full h-full object-cover opacity-100"
-                    crossOrigin="anonymous"
-                  />
-                </div>
-              )}
+          {/* Destination image as background */}
+          {destinationImage && (
+            <div className="absolute top-0 left-0 w-[1080px] h-[1920px] overflow-hidden z-0">
+              <img
+                src={destinationImage || "/placeholder.svg"}
+                alt={promo.DESTINO}
+                className="w-full h-full object-cover opacity-80"
+                crossOrigin="anonymous"
+              />
+            </div>
+          )}
+          {/* Template overlay with higher z-index */}
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo z-10">
             {/* Background template image */}
             <img
@@ -240,9 +240,7 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
                 {parcelas}x de
               </div>
               <div className="absolute top-[610px] left-[540px] text-[#002043] font-bold text-[30px]">R$</div>
-              <div className="absolute top-[625px] left-[600px] text-[#002043] font-bold text-[100px]">
-                {baseValue}
-              </div>
+              <div className="absolute top-[625px] left-[600px] text-[#002043] font-bold text-[100px]">{baseValue}</div>
               <div className="absolute top-[760px] left-[540px] text-[#002043] font-medium text-[30px]">
                 no cartão e {parcelas - 1}x no boleto sem juros.
               </div>
@@ -282,7 +280,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
             </div>
           </div>
         </div>
-        
       </div>
     </div>
   )
