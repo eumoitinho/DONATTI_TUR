@@ -135,18 +135,25 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
   // Generate and download image
   const generateImage = async () => {
     if (!templateRef.current) return
-
+  
     setIsGenerating(true)
-
+  
     try {
-      const dataUrl = await toPng(templateRef.current, {
+      // Temporariamente remover o scale para capturar a imagem no tamanho correto
+      const template = templateRef.current
+      const originalTransform = template.style.transform
+      template.style.transform = ""
+  
+      const dataUrl = await toPng(template, {
         quality: 0.95,
         width: 1080,
         height: 1920,
-        pixelRatio: 0.5,
       })
-
-      // Create download link
+  
+      // Restaurar o estilo original
+      template.style.transform = originalTransform
+  
+      // Criar o link de download
       const link = document.createElement("a")
       link.download = `promo-${promo.DESTINO.toLowerCase().replace(/\s+/g, "-")}.png`
       link.href = dataUrl
