@@ -11,7 +11,9 @@ import { PromoStats } from "../promos/PromoStats"
 import { DateRangePicker } from "../promos/DateRangePicker"
 import { CSVExport } from "../promos/CSVExport"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Plus, FileText, BarChart2, Users, UserPlus } from "lucide-react"
+import { Loader2, Plus, FileText, BarChart2, Users, UserPlus, MessageSquare, Briefcase } from "lucide-react"
+import { EmployeeManagement } from "./EmployeeManagement"
+import { SocialMediaDashboard } from "../social/SocialMediaDashboard"
 
 interface User {
   id: string
@@ -126,6 +128,11 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     setActiveTab("add-user")
   }
 
+  const handleAddPromoClick = () => {
+    setSelectedPromo(null)
+    setActiveTab("add-promo")
+  }
+
   const handleFormSubmitSuccess = () => {
     fetchPromos()
     fetchStats()
@@ -176,6 +183,14 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               <span>Novo Usuário</span>
             </button>
 
+            <button
+              onClick={handleAddPromoClick}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-second-blue text-white rounded-md hover:bg-primary-blue transition-colors font-mon"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Nova Promoção</span>
+            </button>
+
             <CSVExport dateRange={dateRange} />
           </div>
         </div>
@@ -203,6 +218,13 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               <span>Usuários</span>
             </TabsTrigger>
             <TabsTrigger
+              value="employees"
+              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+            >
+              <Briefcase className="h-4 w-4 mr-2" />
+              <span>Funcionários</span>
+            </TabsTrigger>
+            <TabsTrigger
               value="promos"
               className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
             >
@@ -210,11 +232,25 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               <span>Promoções</span>
             </TabsTrigger>
             <TabsTrigger
+              value="social"
+              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              <span>Redes Sociais</span>
+            </TabsTrigger>
+            <TabsTrigger
               value="add-user"
               className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
             >
               <UserPlus className="h-4 w-4 mr-2" />
               <span>{selectedUser ? "Editar Usuário" : "Adicionar Usuário"}</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="add-promo"
+              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <span>Nova Promoção</span>
             </TabsTrigger>
             <TabsTrigger
               value="edit-promo"
@@ -257,6 +293,10 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             )}
           </TabsContent>
 
+          <TabsContent value="employees">
+            <EmployeeManagement />
+          </TabsContent>
+
           <TabsContent value="promos">
             {isLoading ? (
               <div className="flex justify-center items-center py-12">
@@ -271,8 +311,16 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             )}
           </TabsContent>
 
+          <TabsContent value="social">
+            <SocialMediaDashboard />
+          </TabsContent>
+
           <TabsContent value="add-user">
             <UserForm user={selectedUser} onSuccess={handleFormSubmitSuccess} />
+          </TabsContent>
+
+          <TabsContent value="add-promo">
+            <PromoForm promo={null} onSuccess={handleFormSubmitSuccess} />
           </TabsContent>
 
           <TabsContent value="edit-promo">

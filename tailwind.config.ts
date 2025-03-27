@@ -61,6 +61,8 @@ const config: Config = {
         "custom-muted-foreground": "#6B7280",
         "custom-background": "#FFFFFF",
         "custom-foreground": "#1D3153",
+        "donatti-blue": "#002043",
+        "donatti-yellow": "#f5a406",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -71,6 +73,7 @@ const config: Config = {
         blo: ["BLOVERLY"],
         bsf: ["BetterSignatureFont"],
         mon: ["Montserrat"],
+        neo: ["Neo Sans W1G", "sans-serif"],
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",

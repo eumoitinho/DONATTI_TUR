@@ -2,9 +2,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, User, LogOut, Home, FileText } from "lucide-react"
+import { Menu, X, User, LogOut, Home } from "lucide-react"
 import Logo from "../../../public/assets/logo-preto.png"
 import LogoIcon from "../../../public/assets/logo-icon-preto.png"
+import { FileText } from "lucide-react"
 
 interface UserProps {
   id: string
@@ -24,7 +25,7 @@ export function AgentHeader({ user, onSignOut }: AgentHeaderProps) {
   return (
     <header className="bg-white shadow-sm py-3 sticky top-0 z-50">
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link href="/agent" className="flex items-center">
+        <Link href="/agente" className="flex items-center">
           <div className="hidden sm:block">
             <Image src={Logo || "/placeholder.svg"} alt="Donatti Turismo" priority className="h-12 w-auto" />
           </div>
@@ -36,7 +37,7 @@ export function AgentHeader({ user, onSignOut }: AgentHeaderProps) {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           <Link
-            href="/agent"
+            href="/agente"
             className="text-gray-600 hover:text-primary-blue transition-colors font-mon flex items-center"
           >
             <FileText className="h-4 w-4 mr-1" />
@@ -78,7 +79,7 @@ export function AgentHeader({ user, onSignOut }: AgentHeaderProps) {
         <div className="md:hidden bg-white border-t mt-3 py-4 px-4 shadow-md">
           <div className="flex flex-col space-y-4">
             <Link
-              href="/agent"
+              href="/agente"
               className="text-gray-600 hover:text-primary-blue transition-colors font-mon flex items-center p-2"
               onClick={() => setIsMenuOpen(false)}
             >

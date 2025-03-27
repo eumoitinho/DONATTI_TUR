@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: "Donatti Turismo  | Pacotes de Viagens com Descontos!",
     description:
       "Encontre os melhores pacotes de viagens nacionais e internacionais com a Donatti Turismo . Viaje mais pagando menos!",
-    images: ["https://lh3.googleusercontent.com/p/AF1QipOYOS8Q6O9EgC0vPlRwwAWbAnAWUkc4Hq7Yuboo=s1360-w1360-h1020"],
+    images: ["/assets/logo-preto.png"],
     type: "website",
     locale: "pt_BR",
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Donatti Turismo  | Pacotes de Viagens com Descontos!",
     description:
       "Encontre os melhores pacotes de viagens nacionais e internacionais com a Donatti Turismo . Viaje mais pagando menos!",
-    images: ["https://lh3.googleusercontent.com/p/AF1QipOYOS8Q6O9EgC0vPlRwwAWbAnAWUkc4Hq7Yuboo=s1360-w1360-h1020"],
+    images: ["/assets/logo-preto.png"],
   },
 }
 
