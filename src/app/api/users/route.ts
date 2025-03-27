@@ -3,8 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../auth/[...nextauth]/options"
 import { nanoid } from "nanoid"
 import { z } from "zod"
-import { redis, REDIS_KEYS } from "../../../lib/redis"
-import type { User } from "../../../types/user"
+import { redis, REDIS_KEYS } from "@/lib/redis"
+import type { User } from "@/types/user"
 
 // Schema for user validation
 const userSchema = z.object({

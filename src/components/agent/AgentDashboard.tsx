@@ -8,9 +8,8 @@ import { PromoStats } from "../promos/PromoStats"
 import { DateRangePicker } from "../promos/DateRangePicker"
 import { CSVExport } from "../promos/CSVExport"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Plus, FileText, BarChart2, Image, MessageSquare } from "lucide-react"
+import { Loader2, Plus, FileText, BarChart2, Image } from "lucide-react"
 import { PromoImageBulkGenerator } from "../promos/PromoImageBulkGenerator"
-import { SocialMediaDashboard } from "../social/SocialMediaDashboard"
 
 interface User {
   id: string
@@ -81,7 +80,7 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
 
   const handleEditPromo = (promo: any) => {
     setSelectedPromo(promo)
-    setActiveTab("edit-promo")
+    setActiveTab("adicionar")
   }
 
   const handleAddNewClick = () => {
@@ -101,6 +100,8 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
 
     // If both dates are selected, filter promos
     if (range.from && range.to) {
+      const startDateStr = range.from.toISOString().split("T")[0]
+      const endDateStr = range.to.toISOString().split("T")[0]
       fetchPromos()
     } else {
       fetchPromos()
@@ -163,16 +164,8 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
               className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
             >
               <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Adicionar Nova</span>
-              <span className="sm:hidden">Adicionar</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="edit-promo"
-              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Editar Promoção</span>
-              <span className="sm:hidden">Editar</span>
+              <span className="hidden sm:inline">{selectedPromo ? "Editar Promoção" : "Adicionar Nova"}</span>
+              <span className="sm:hidden">{selectedPromo ? "Editar" : "Adicionar"}</span>
             </TabsTrigger>
             <TabsTrigger
               value="imagens"
@@ -181,14 +174,6 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
               <Image className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Gerador de Imagens</span>
               <span className="sm:hidden">Imagens</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="social"
-              className="font-mon data-[state=active]:bg-white data-[state=active]:text-primary-blue"
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Redes Sociais</span>
-              <span className="sm:hidden">Social</span>
             </TabsTrigger>
             <TabsTrigger
               value="estatisticas"
@@ -219,10 +204,6 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
           </TabsContent>
 
           <TabsContent value="adicionar">
-            <PromoForm promo={null} onSuccess={handleFormSubmitSuccess} />
-          </TabsContent>
-
-          <TabsContent value="edit-promo">
             <PromoForm promo={selectedPromo} onSuccess={handleFormSubmitSuccess} />
           </TabsContent>
 
@@ -231,10 +212,6 @@ export default function AgentDashboard({ user }: AgentDashboardProps) {
               <h2 className="text-xl font-bold text-primary-blue mb-6 font-mon">Gerador de Imagens Promocionais</h2>
               <PromoImageBulkGenerator promos={promos} />
             </div>
-          </TabsContent>
-
-          <TabsContent value="social">
-            <SocialMediaDashboard />
           </TabsContent>
 
           <TabsContent value="estatisticas">

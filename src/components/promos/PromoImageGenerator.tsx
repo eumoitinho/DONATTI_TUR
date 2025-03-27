@@ -147,7 +147,6 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
         quality: 0.95,
         width: 1080,
         height: 1920,
-        cacheBust: true, // Add cache busting to avoid CORS issues
       })
 
       // Restaurar o estilo original
@@ -210,7 +209,11 @@ export function PromoImageGenerator({ promo }: PromoImageGeneratorProps) {
           {/* Template overlay with higher z-index */}
           <div className="absolute inset-0 w-[1080px] h-[1920px] font-neo z-10">
             {/* Background template image */}
-            <img src="/assets/LAYOUTFINAL.png" alt="Promo Template" className="w-full h-full object-cover" />
+            <img
+              src="/assets/LAYOUTFINAL.png"
+              alt="Promo Template"
+              className="w-full h-full object-cover"
+            />
 
             {/* Text Overlay */}
             <div className="absolute inset-0">

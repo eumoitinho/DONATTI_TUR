@@ -81,10 +81,6 @@ export async function GET(request: NextRequest) {
             id: "fallback1",
             urls: {
               regular: `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
-              raw: `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
-              full: `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
-              small: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`,
-              thumb: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}`,
             },
             user: {
               name: "Unsplash",

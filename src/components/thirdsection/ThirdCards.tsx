@@ -71,7 +71,7 @@ export function ThirdCards() {
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <h4 className="text-white text-2xl font-bold font-mon">{card.text}</h4>
                   <p className="text-white/80 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Clique aqui para saber mais
+                    Clique para saber mais
                   </p>
                 </div>
               </div>

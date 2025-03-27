@@ -20,7 +20,7 @@ export default async function AdminPage() {
 
   // If not admin, redirect to appropriate area
   if (session.user.role !== "admin") {
-    redirect("/agente")
+    redirect("/agent")
   }
 
   return (
